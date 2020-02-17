@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using LogFilterCore.Models.Filters;
+using LogFilterCore.Parsers;
 using LogFilterCore.Utility;
 using Newtonsoft.Json;
 
@@ -59,9 +61,19 @@ namespace LogFilterCore.Models
         public string ReparseFilePrefix { get; set; }
 
         /// <summary>
-        /// prefix to mark the filtered 
+        /// Prefix to mark the file with the filtered entries.
         /// </summary>
         public string FilteredFilePrefix { get; set; }
+        
+        /// <summary>
+        /// Begin date for files prefiltering.
+        /// </summary>
+        public DateTime? BeginDateTimeFilter { get; set; }
+
+        /// <summary>
+        /// End date for files prefiltering.
+        /// </summary>
+        public DateTime? EndDateTimeFilter { get; set; }
 
 
         /// <summary>
@@ -69,27 +81,31 @@ namespace LogFilterCore.Models
         /// </summary>
         public string ParserName { get; set; }
 
-        // TODO: Revise this section
+        public ParserBase Parser { get; set; }
+
 
         /// <summary>
         /// Split log entries by thread. If it is null - no thread splitting is performed; if it is empty, 
         /// all filtered entries are separated by files for separate threads, 
         /// if it has a specific value - results in a file with logs from this specific thread only.        
         /// </summary>
-        //public string SplitByThread { get; set; }
+        public string SplitByThread { get; set; }
 
         /// <summary>
         /// Split log entries by user. If it is null - no user splitting is performed; if it is empty, 
         /// all filtered entries are separated by files for separate users, 
         /// if it has a specific value - results in a file with logs from this specific user only.        
         /// </summary>
-        //public string SplitByUser { get; set; }
+        public string SplitByUser { get; set; }
 
         /// <summary>
         /// Split log entries by level(s). If it is null - no log level splitting is performed; if it is empty, 
         /// all filtered entries are separated by files for separate log levels, 
         /// if it has a specific value(s) - results in a file(s) with logs from this specific log level(s).        
         /// </summary>
-        //public LogLevel[] SplitByLogLevels { get; set; }
+        public LogLevel[] SplitByLogLevels { get; set; }
+
+
+        public List<FilterBase> Filters { get; set; }
     }
 }
