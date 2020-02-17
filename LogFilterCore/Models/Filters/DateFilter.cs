@@ -14,7 +14,7 @@ namespace LogFilterCore.Models.Filters
         /// </summary>        
         public DateTime Value { get; set; }
 
-        public override bool? Filter(LogEntry[] filteredEntries, LogEntry currentEntry)
+        public override bool? Apply(List<LogEntry> filteredEntries, LogEntry currentEntry)
         {
             if (!currentEntry.Date.HasValue)
             {
@@ -25,7 +25,11 @@ namespace LogFilterCore.Models.Filters
 
             if (currentEntry.Date >= this.Value)
             {
-                return this.Type == FilterType.Include;
+                if (this.Type == FilterType.Include)
+                {
+                    this.Count++;
+                    return this.ShouldContinue;
+                }                
             }
 
             return false;

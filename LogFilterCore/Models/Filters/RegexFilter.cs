@@ -14,9 +14,15 @@ namespace LogFilterCore.Models.Filters
         /// </summary>        
         public Regex Value { get; set; }
 
-        public override bool? Filter(LogEntry[] filteredEntries, LogEntry currentEntry)
-        {            
-            return this.Value.IsMatch(currentEntry.OriginalLine);
+        public override bool? Apply(List<LogEntry> filteredEntries, LogEntry currentEntry)
+        {
+            if (this.Value.IsMatch(currentEntry.OriginalLine))
+            {
+                this.Count++;
+                return this.ShouldContinue;
+            }
+
+            return null;
         }
     }
 }

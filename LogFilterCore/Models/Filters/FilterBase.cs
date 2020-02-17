@@ -31,7 +31,7 @@ namespace LogFilterCore.Models.Filters
         public FilterType Type { get; set; }
 
         /// <summary>
-        /// Incremented by the parser whenever this occurance's 
+        /// Incremented whenever this occurance's 
         /// filter is matched upon a log entry.
         /// </summary>        
         public ulong Count { get; set; }
@@ -60,6 +60,12 @@ namespace LogFilterCore.Models.Filters
         /// </summary>
         public int Context { get; set; }
 
-        public abstract bool? Filter(LogEntry[] filteredEntries, LogEntry currentEntry);
+        /// <summary>
+        /// Accumulative variable holding all log entries that satisfy the filter if WriteToFile is true and should be written into another file.
+        /// </summary>        
+        [JsonIgnore]
+        public List<LogEntry> Entries { get; set; } = new List<LogEntry>();
+
+        public abstract bool? Apply(List<LogEntry> filteredEntries, LogEntry currentEntry);
     }
 }

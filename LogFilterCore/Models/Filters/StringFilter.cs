@@ -16,9 +16,15 @@ namespace LogFilterCore.Models.Filters
 
         public StringComparison Comparison { get; set; } = StringComparison.InvariantCulture;
 
-        public override bool? Filter(LogEntry[] filteredEntries, LogEntry currentEntry)
+        public override bool? Apply(List<LogEntry> filteredEntries, LogEntry currentEntry)
         {
-            return currentEntry.OriginalLine.IndexOf(this.Value, Comparison) >= 0;
+            if (currentEntry.OriginalLine.IndexOf(this.Value, Comparison) >= 0)
+            {
+                this.Count++;
+                return this.ShouldContinue;                
+            }
+
+            return null;
         }
     }
 }
