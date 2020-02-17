@@ -13,5 +13,10 @@ namespace LogFilterCore.Models.Filters
         /// The regular expression to be applied to the original line entry.
         /// </summary>        
         public Regex Value { get; set; }
+
+        public override bool? Filter(LogEntry[] filteredEntries, LogEntry currentEntry)
+        {            
+            return this.Value.IsMatch(currentEntry.OriginalLine);
+        }
     }
 }

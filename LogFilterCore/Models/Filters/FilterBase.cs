@@ -59,5 +59,7 @@ namespace LogFilterCore.Models.Filters
         /// this filter that should be included in the result set.
         /// </summary>
         public int Context { get; set; }
+
+        public abstract bool? Filter(LogEntry[] filteredEntries, LogEntry currentEntry);
     }
 }
