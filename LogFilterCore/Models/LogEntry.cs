@@ -10,7 +10,7 @@ namespace LogFilterCore.Models
     {
         public string OriginalLine { get; }
 
-        public bool? InResultSet { get; set; } = false;
+        public bool InResultSet { get; set; } = false;
 
         public LogEntry(string line)
         {
