@@ -81,6 +81,10 @@ namespace LogFilterCore.Models
         /// </summary>
         public string ParserName { get; set; }
 
+        /// <summary>
+        /// Parser instance to apply the filters for each of the log entries.
+        /// </summary>
+        [JsonIgnore]
         public ParserBase Parser { get; set; }
 
 
@@ -105,7 +109,9 @@ namespace LogFilterCore.Models
         /// </summary>
         public LogLevel[] SplitByLogLevels { get; set; }
 
-
+        /// <summary>
+        /// List of filters to be applied on each of the log entries.
+        /// </summary>
         public List<FilterBase> Filters { get; set; }
     }
 }
