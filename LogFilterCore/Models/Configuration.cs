@@ -58,7 +58,7 @@ namespace LogFilterCore.Models
         /// <summary>
         /// Prefix to use previously outputed files from the parser as input.
         /// </summary>
-        public string ReparseFilePrefix { get; set; }
+        public string ReparseFilePrefix { get; set; } = "original";
 
         /// <summary>
         /// Prefix to mark the file with the filtered entries.
