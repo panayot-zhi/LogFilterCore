@@ -13,6 +13,8 @@ namespace LogFilterCore.Parsers
 {
     public abstract class ParserBase
     {        
+        public virtual string FileFormat { get; } = "yyyy-MM-dd";
+
         public virtual string DateFormat { get; } = "yyyy-MM-dd";
 
         public virtual string TimeFormat { get; } = "HH:mm:ss,fff";
