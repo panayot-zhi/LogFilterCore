@@ -4,8 +4,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using LogFilterCore.Models;
+using LogFilterCore.Utility.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -19,7 +21,7 @@ namespace LogFilterCore.Utility
 
         public static string GetPrefixFormat(string prefix)
         {
-            return "[" + prefix + "]-";
+            return "[" + prefix.ToLowerInvariant() + "]-";
         }
 
         public static bool IsFolder(string path)
@@ -39,11 +41,6 @@ namespace LogFilterCore.Utility
             var fileName = Path.GetFileNameWithoutExtension(filePath);
             var fullFileName = Path.GetFileName(filePath);
             var prefixedFileName = GetPrefixFormat(SummaryFilePrefix) + fileName + ".json";
-
-            /*if (fullFileName == null)
-            {
-                fullFileName = filePath.Substring(filePath.LastIndexOf("\\", StringComparison.InvariantCulture));
-            }*/
 
             if (string.IsNullOrEmpty(inputFolder))
             {
@@ -84,18 +81,6 @@ namespace LogFilterCore.Utility
 
             var json = File.ReadAllText(path);
             return JsonConvert.DeserializeObject<Configuration>(json, settings);
-        }
-
-        public static bool WriteFile(string filePath, string content, bool overwrite = false)
-        {
-            if (!overwrite && File.Exists(filePath))
-            {
-                //throw new ParserException($"File '{Path.GetFileNameWithoutExtension(filePath)}' already exists (overwrite: false).");
-                return false;
-            }
-
-            File.WriteAllText(filePath, content);
-            return true;
         }
 
         public static void SetReadonly(string path)
@@ -244,6 +229,130 @@ namespace LogFilterCore.Utility
         {
             // after reading, reassemble path to make output pattern for the directory the same as within the original
             return filePath.Substring(0, filePath.IndexOf($"\\{GetPrefixFormat(CurrentFilePrefix)}", StringComparison.Ordinal));
+        }
+
+        public static string[] ReadLogLines(string filePath, Action<int> progressCallback, out int totalLinesCount, Regex matcher)
+        {
+            if (progressCallback == null)
+            {
+                throw new ArgumentNullException(nameof(progressCallback));
+            }
+
+            long totalRead = 0;
+            int linesCount = 0;
+            string accumulator = null;
+            var totalSize = new FileInfo(filePath).Length;
+            var lines = new List<string>();
+
+            // NOTE: Equivalent to using new StreamReader
+            using (var reader = File.OpenText(filePath))
+            {
+                do
+                {
+                    var currentLine = reader.ReadLine();
+                    if (currentLine == null)
+                    {
+                        // append the last accumulated line
+                        lines.Add(accumulator);
+
+                        // exit condition
+                        break;
+                    }
+
+                    linesCount++;
+
+                    // -> line is not null
+
+                    if (matcher.IsMatch(currentLine))
+                    {
+                        // new log line has been acknowleded
+
+                        if (accumulator == null)
+                        {
+                            // the first line in file begins construction
+                            accumulator = currentLine;
+                        }
+                        else
+                        {
+                            // append the last accumulated line
+                            lines.Add(accumulator);
+
+                            // calculate the size of the log line and call progress updater
+                            var lineSize = System.Text.Encoding.UTF8.GetByteCount(accumulator);
+                            totalRead += lineSize;
+                            if (totalRead % 10 == 0)
+                            {
+                                var progress = (int)(totalRead * 100 / totalSize);
+                                progressCallback.Invoke(progress);
+                            }
+
+                            // begin accumulating new one
+                            accumulator = currentLine;
+                        }
+                    }
+                    else
+                    {
+                        // message line has been acknowleded
+
+                        if (accumulator == null)
+                        {
+                            // the first line does not conform to line standards
+                            throw new ParserException($"The first line in file does not conform to line standards: {matcher}.");
+                        }
+
+                        // message should be appended to the accumulator
+                        accumulator += Environment.NewLine + currentLine;
+                    }
+                } while (true);
+
+                progressCallback.Invoke(100);
+                totalLinesCount = linesCount;
+                return lines.ToArray();
+            }
+        }
+
+        public static string GetOutputFilePath(string filePath, string inputFolder, string outputFolder, string prefix)
+        {
+            var fileName = Path.GetFileNameWithoutExtension(filePath);
+            var fullFileName = Path.GetFileName(filePath);
+            var prefixedFileName = GetPrefixFormat(prefix) + fullFileName;
+
+            if (string.IsNullOrEmpty(inputFolder))
+            {
+                inputFolder = GetFileDirectory(filePath);
+            }
+
+            var baseOutputPath = filePath.Replace(inputFolder, outputFolder);
+            var newOutputPath = baseOutputPath.Replace(fullFileName, Path.Combine(fileName, prefixedFileName));
+            var newOutputDirectory = newOutputPath.Replace(prefixedFileName, string.Empty);
+
+            Directory.CreateDirectory(newOutputDirectory);
+
+            return newOutputPath;
+        }
+
+        public static bool WriteFile(string filePath, IEnumerable<string> lines, bool overwrite = false)
+        {
+            if (!overwrite && File.Exists(filePath))
+            {                
+                return false;
+            }
+
+            File.WriteAllLines(filePath, lines);
+
+            return true;
+        }
+
+        public static bool WriteFile(string filePath, string content, bool overwrite = false)
+        {
+            if (!overwrite && File.Exists(filePath))
+            {
+                return false;
+            }
+
+            File.WriteAllText(filePath, content);
+
+            return true;
         }
     }
 }
