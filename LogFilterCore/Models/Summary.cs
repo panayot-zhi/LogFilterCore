@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using LogFilterCore.Models.Filters;
 using LogFilterCore.Utility;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -36,7 +37,9 @@ namespace LogFilterCore.Models
 
         public DateTime BeginProcessTimestamp { get; set; }
 
-        public DateTime EndProcessTimestamp { get; set; }        
+        public DateTime EndProcessTimestamp { get; set; }
+
+        public FilterBase[] Filters { get; set; }
 
         public virtual string ToJson()
         {
