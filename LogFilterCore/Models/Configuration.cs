@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 
 namespace LogFilterCore.Models
 {
+    [Serializable]
     public class Configuration
     {
         /// <summary>

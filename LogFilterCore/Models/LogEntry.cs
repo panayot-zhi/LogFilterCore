@@ -9,7 +9,7 @@ namespace LogFilterCore.Models
     public class LogEntry
     {
         public string OriginalLine { get; }
-
+        
         public bool InResultSet { get; set; } = false;
 
         public LogEntry(string line)
@@ -50,12 +50,12 @@ namespace LogFilterCore.Models
         /// <summary>
         /// Used to output the level of the logging event (level, p).        
         /// </summary>
-        public LogLevel? Level { get; set; }
+        public string Level { get; set; }
 
         /// <summary>
         /// Used to output the line number from where the logging request was issued (line, L).
         /// </summary>
-        public int? Line { get; set; }
+        public string Line { get; set; }
 
         /// <summary>
         /// Used to output the logger of the logging event. The logger conversion specifier can be optionally 
@@ -101,7 +101,7 @@ namespace LogFilterCore.Models
         /// <summary>
         /// Used to output the number of milliseconds elapsed since the start of the application until the creation of the logging event (timestamp, r).
         /// </summary>
-        public ulong? Timestamp { get; set; }
+        public string Timestamp { get; set; }
 
         /// <summary>        
         /// Used to output the name of the thread that generated the logging event. Uses the thread number if no name is available (thread, t).

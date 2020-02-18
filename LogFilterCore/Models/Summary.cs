@@ -10,6 +10,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace LogFilterCore.Models
 {
+    [Serializable]
     public class Summary
     {        
         protected string DateTimeFormat { get; }
@@ -39,7 +40,7 @@ namespace LogFilterCore.Models
 
         public DateTime EndProcessTimestamp { get; set; }
 
-        public FilterBase[] Filters { get; set; }
+        public Filter[] Filters { get; set; }
 
         public virtual string ToJson()
         {

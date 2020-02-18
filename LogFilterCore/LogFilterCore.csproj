@@ -46,8 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Models\Arguments.cs" />
     <Compile Include="Models\Configuration.cs" />
+    <Compile Include="Models\Filter.cs" />
     <Compile Include="Models\Filters\DateFilter.cs" />
     <Compile Include="Models\Filters\FilterBase.cs" />
     <Compile Include="Models\Filters\RegexFilter.cs" />
