@@ -1,5 +1,4 @@
-﻿using LogFilterCore.Utility;
-using System;
+﻿using System;
 using System.Threading;
 
 namespace LogFilterCore
@@ -34,18 +33,7 @@ namespace LogFilterCore
             {
                 if (percent.HasValue)
                 {
-                    if (string.IsNullOrEmpty(message))
-                    {
-                        Console.Write($"\rProgress: {percent}%");
-                    }
-                    else if (message.HasPlaceholder())
-                    {
-                        Console.Write($"\r{string.Format(message, percent)}");
-                    }
-                    else
-                    {
-                        Console.Write($"\r{message}: " + percent + "%");
-                    }
+                    Console.Write($"\r{percent}% {message}");
                 }
                 else
                 {
@@ -57,7 +45,7 @@ namespace LogFilterCore
 
             foreach (var arg in args)
             {
-                if (!FileHelper.IsFile(arg))
+                if (!FileProcessor.IsFile(arg))
                 {
                     Console.WriteLine("Does not exist: " + arg);
                     Thread.Sleep(500);

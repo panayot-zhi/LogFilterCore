@@ -41,25 +41,12 @@ namespace LogFilterCore.Models
         /// </summary>
         public bool CopyOriginal { get; set; }
 
-        /// <summary>
-        /// Prefix to mark the original file copy in the output folder.
+        /// <summary>        
+        /// Take as input previously parsed files. If it is null - 
+        /// no reparsing is done, all log files from the input directory are taken;        
+        /// if it has value - only files with that specific prefix are taken.
         /// </summary>
-        public string OriginalFilePrefix { get; set; }
-
-        /// <summary>
-        /// Flag indicating if the input folder is the product of a previous parser run.
-        /// </summary>
-        public bool Reparse { get; set; }
-
-        /// <summary>
-        /// Prefix to use previously outputed files from the parser as input.
-        /// </summary>
-        public string ReparseFilePrefix { get; set; } = "original";
-
-        /// <summary>
-        /// Prefix to mark the file with the filtered entries.
-        /// </summary>
-        public string FilteredFilePrefix { get; set; }
+        public string Reparse { get; set; }
         
         /// <summary>
         /// Begin date for files prefiltering.
@@ -72,6 +59,35 @@ namespace LogFilterCore.Models
         public DateTime? EndDateTime { get; set; }
 
 
+
+        /// <summary>
+        /// Split log entries by thread(s). If it is null - no thread splitting is performed; if it is empty, 
+        /// all filtered entries are separated by their respective threads;
+        /// if it has a specific value(s) - results in a file with logs from this specific thread(s) only.        
+        /// </summary>
+        public string[] SplitByThreads { get; set; }
+
+        /// <summary>
+        /// Split log entries by user(s). If it is null - no user splitting is performed; if it is empty, 
+        /// all filtered entries are separated by their respective users;
+        /// if it has a specific value(s) - results in a file with logs from these user(s) only.        
+        /// </summary>
+        public string[] SplitByUsers { get; set; }
+
+        /// <summary>
+        /// Split log entries by level(s). If it is null - no log level splitting is performed; if it is empty, 
+        /// all filtered entries are separated by their respective log levels;
+        /// if it has a specific value(s) - results in a file(s) with logs from this specific log level(s).        
+        /// </summary>
+        public string[] SplitByLogLevels { get; set; }
+
+        /// <summary>
+        /// List of filters to be applied on each of the log entries.
+        /// </summary>
+        public List<Filter> Filters { get; set; }
+
+
+
         /// <summary>
         /// Name of the parser that will be instantiated to process the input log folder.
         /// </summary>
@@ -82,32 +98,5 @@ namespace LogFilterCore.Models
         /// </summary>
         [JsonIgnore]
         public ParserBase Parser { get; set; }
-
-
-        /// <summary>
-        /// Split log entries by thread. If it is null - no thread splitting is performed; if it is empty, 
-        /// all filtered entries are separated by files for separate threads, 
-        /// if it has a specific value - results in a file with logs from this specific thread only.        
-        /// </summary>
-        public string SplitByThread { get; set; }
-
-        /// <summary>
-        /// Split log entries by user. If it is null - no user splitting is performed; if it is empty, 
-        /// all filtered entries are separated by files for separate users, 
-        /// if it has a specific value - results in a file with logs from this specific user only.        
-        /// </summary>
-        public string SplitByUser { get; set; }
-
-        /// <summary>
-        /// Split log entries by level(s). If it is null - no log level splitting is performed; if it is empty, 
-        /// all filtered entries are separated by files for separate log levels, 
-        /// if it has a specific value(s) - results in a file(s) with logs from this specific log level(s).        
-        /// </summary>
-        public LogLevel[] SplitByLogLevels { get; set; }
-
-        /// <summary>
-        /// List of filters to be applied on each of the log entries.
-        /// </summary>
-        public List<Filter> Filters { get; set; }
     }
 }
