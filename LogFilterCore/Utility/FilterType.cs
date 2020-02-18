@@ -9,13 +9,18 @@ namespace LogFilterCore.Utility
     public enum FilterType
     {
         /// <summary>
-        /// If the filter matched a line, include the entry in the result set.
+        /// If the filter matched a line, include the entry in the main result set.
         /// </summary>
         Include,
 
         /// <summary>
-        /// If the filter matched a line, exclude the entry from the result set.
+        /// If the filter matched a line, exclude the entry from the main result set.
         /// </summary>
-        Exclude
+        Exclude,
+
+        /// <summary>
+        /// If the filter matched a line, write the entry to a different result set.
+        /// </summary>
+        WriteToFile
     }
 }

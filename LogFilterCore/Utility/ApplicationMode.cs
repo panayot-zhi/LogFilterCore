@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace LogFilterCore.Utility
-{
+{    
     public enum ApplicationMode
     {
-        Automatic
+        // TODO: Work in progress...
+
+        Verbose
     }
 }
