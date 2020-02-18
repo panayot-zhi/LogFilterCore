@@ -1,10 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
-using LogFilterCore.Models.Filters;
 using LogFilterCore.Parsers;
 using LogFilterCore.Utility;
 using Newtonsoft.Json;
@@ -69,12 +64,12 @@ namespace LogFilterCore.Models
         /// <summary>
         /// Begin date for files prefiltering.
         /// </summary>
-        public DateTime? BeginDateTimeFilter { get; set; }
+        public DateTime? BeginDateTime { get; set; }
 
         /// <summary>
         /// End date for files prefiltering.
         /// </summary>
-        public DateTime? EndDateTimeFilter { get; set; }
+        public DateTime? EndDateTime { get; set; }
 
 
         /// <summary>
@@ -113,6 +108,6 @@ namespace LogFilterCore.Models
         /// <summary>
         /// List of filters to be applied on each of the log entries.
         /// </summary>
-        public List<FilterBase> Filters { get; set; }
+        public List<Filter> Filters { get; set; }
     }
 }
