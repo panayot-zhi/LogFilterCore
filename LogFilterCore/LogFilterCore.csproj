@@ -48,10 +48,6 @@
   <ItemGroup>
     <Compile Include="Models\Configuration.cs" />
     <Compile Include="Models\Filter.cs" />
-    <Compile Include="Models\Filters\DateFilter.cs" />
-    <Compile Include="Models\Filters\FilterBase.cs" />
-    <Compile Include="Models\Filters\RegexFilter.cs" />
-    <Compile Include="Models\Filters\StringFilter.cs" />
     <Compile Include="Models\LogEntry.cs" />
     <Compile Include="Models\Summary.cs" />
     <Compile Include="Parsers\ParserBase.cs" />
