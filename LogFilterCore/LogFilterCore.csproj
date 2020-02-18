@@ -55,11 +55,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\ApplicationMode.cs" />
     <Compile Include="Utility\Extensions.cs" />
-    <Compile Include="Utility\FileHelper.cs" />
+    <Compile Include="FileProcessor.cs" />
+    <Compile Include="Utility\ObjectCloner.cs" />
     <Compile Include="Utility\ParserDateTimeConverter.cs" />
     <Compile Include="Utility\FilterType.cs" />
-    <Compile Include="Utility\LogLevel.cs" />
-    <Compile Include="Utility\ConfigurationRunner.cs" />
+    <Compile Include="ConfigurationRunner.cs" />
+    <Compile Include="Utility\Tracing\ConfigurationException.cs" />
+    <Compile Include="Utility\Tracing\FileProcessorException.cs" />
     <Compile Include="Utility\Tracing\ParserException.cs" />
   </ItemGroup>
   <ItemGroup>

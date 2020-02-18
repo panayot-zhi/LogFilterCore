@@ -3,21 +3,19 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using LogFilterCore.Models;
 using LogFilterCore.Utility.Tracing;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace LogFilterCore.Utility
+namespace LogFilterCore
 {
-    public static class FileHelper
+    public static class FileProcessor
     {        
         public static string SummaryFilePrefix { get; set; } = "summary";
 
-        public static string CurrentFilePrefix { get; set; }
+        //public static string CurrentFilePrefix { get; set; }
 
         public static string GetPrefixFormat(string prefix)
         {
@@ -106,7 +104,7 @@ namespace LogFilterCore.Utility
             return files.ToArray();
         }
 
-        public static string[] GetPrefixedLogsFromDirectory(string dirPath)
+        public static string[] GetPrefixedLogsFromDirectory(string dirPath, string prefix)
         {
             if (!Directory.Exists(dirPath))
             {
@@ -116,10 +114,10 @@ namespace LogFilterCore.Utility
             var files = new List<string>();
             foreach (var directory in Directory.GetDirectories(dirPath))
             {
-                files.AddRange(GetPrefixedLogsFromDirectory(directory).ToList());
+                files.AddRange(GetPrefixedLogsFromDirectory(directory, prefix).ToList());
             }
 
-            files.AddRange(Directory.GetFiles(dirPath, $"{GetPrefixFormat(CurrentFilePrefix)}*.log"));
+            files.AddRange(Directory.GetFiles(dirPath, $"{GetPrefixFormat(prefix)}*.log"));
             return files.ToArray();
         }
 
@@ -131,13 +129,13 @@ namespace LogFilterCore.Utility
         /// <param name="files">Array of full file paths.</param>
         /// <param name="dateFormat">The datetime format of the parser.</param>
         /// <param name="beginFilter">Filter logs by filename from this date on.</param>
-        /// <param name="endFilter">Filter logs by filename until this day.</param>
+        /// <param name="endFilter">Filter logs by filename until this day.</param>        
         /// <returns></returns>
-        public static IEnumerable<string> FilterFilesByDateFilter(IEnumerable<string> files, string dateFormat, DateTime? beginFilter, DateTime? endFilter, bool originals = false)
+        public static IEnumerable<string> FilterFilesByDateFilter(IEnumerable<string> files, string dateFormat, DateTime? beginFilter, DateTime? endFilter, string prefix = null)
         {
             foreach (var file in files)
             {
-                var fileNameAsDate = TryGetDateFromFileName(file, dateFormat, originals);
+                var fileNameAsDate = TryGetDateFromFileName(file, dateFormat, prefix);
                 if (!fileNameAsDate.HasValue)
                 {
                     // if the filename cannot be parsed as date,
@@ -171,20 +169,20 @@ namespace LogFilterCore.Utility
             }
         }
 
-        public static IEnumerable<FileInfo> FilterFilesByDateFilter(IEnumerable<FileInfo> files, string dateFormat, DateTime? beginFilter, DateTime? endFilter, bool originals = false)
+        public static IEnumerable<FileInfo> FilterFilesByDateFilter(IEnumerable<FileInfo> files, string dateFormat, DateTime? beginFilter, DateTime? endFilter, string prefix = null)
         {
-            return FilterFilesByDateFilter(files.Select(x => x.FullName), dateFormat, beginFilter, endFilter, originals).Select(x => new FileInfo(x));
+            return FilterFilesByDateFilter(files.Select(x => x.FullName), dateFormat, beginFilter, endFilter, prefix).Select(x => new FileInfo(x));
         }
 
-        public static DateTime? TryGetDateFromFileName(string path, string format, bool originals = false)
+        public static DateTime? TryGetDateFromFileName(string path, string format, string prefix = null)
         {
             try
             {
                 var filename = Path.GetFileNameWithoutExtension(path);
-                if (originals)
-                {
-                    // ReSharper disable once PossibleNullReferenceException: Intentional - indicates error
-                    filename = filename.Replace(GetPrefixFormat(CurrentFilePrefix), string.Empty);
+                if (prefix != null)
+                {                    
+                    // ReSharper disable once PossibleNullReferenceException
+                    filename = filename.Replace(GetPrefixFormat(prefix), string.Empty);
                 }
 
                 if (DateTime.TryParseExact(filename, format, CultureInfo.CurrentCulture.DateTimeFormat, DateTimeStyles.None, out var candidate))
@@ -208,27 +206,27 @@ namespace LogFilterCore.Utility
         /// <param name="outputFolder">Destination directory.</param>
         /// <param name="originals">Use files with [original] prefix from the filename</param>
         /// <returns>True if a directory is found, otherwise false.</returns>
-        public static bool HasBeenProcessed(FileInfo inputFile, string inputFolder, string outputFolder, bool originals = false)
+        public static bool HasBeenProcessed(FileInfo inputFile, string inputFolder, string outputFolder, string prefix = null)
         {
             var resolvedDirectoryName = inputFile.FullName.Replace(inputFolder, outputFolder).Replace(inputFile.Extension, string.Empty);
-            if (originals)
+            if (prefix != null)
             {
-                resolvedDirectoryName = ExtractDirectoryName(resolvedDirectoryName);
+                resolvedDirectoryName = ExtractDirectoryName(resolvedDirectoryName, prefix);
             }
 
             return Directory.Exists(resolvedDirectoryName);
         }
 
-        public static string ExtractFileName(string filePath)
+        public static string ExtractFileName(string filePath, string prefix)
         {
             // after reading, reassemble path to make output pattern for the file the same as within the original
-            return filePath.Substring(0, filePath.IndexOf($"\\{GetPrefixFormat(CurrentFilePrefix)}", StringComparison.Ordinal)) + ".log";
+            return filePath.Substring(0, filePath.IndexOf($"\\{GetPrefixFormat(prefix)}", StringComparison.Ordinal)) + ".log";
         }
 
-        public static string ExtractDirectoryName(string filePath)
+        public static string ExtractDirectoryName(string filePath, string prefix)
         {
             // after reading, reassemble path to make output pattern for the directory the same as within the original
-            return filePath.Substring(0, filePath.IndexOf($"\\{GetPrefixFormat(CurrentFilePrefix)}", StringComparison.Ordinal));
+            return filePath.Substring(0, filePath.IndexOf($"\\{GetPrefixFormat(prefix)}", StringComparison.Ordinal));
         }
 
         public static string[] ReadLogLines(string filePath, Action<int> progressCallback, out int totalLinesCount, Regex matcher)
