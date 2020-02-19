@@ -22,10 +22,29 @@ namespace LogFilterCore
             _reportProgress = reportProgress;
         }
 
-        public void Run(string configuration)
-        {
-            var cfg = FileProcessor.LoadConfiguration(configuration);            
+        public void Run(string configurationFilePath)
+        {            
+            try
+            {
+                Current = FileProcessor.LoadConfiguration(configurationFilePath);
+            }
+            catch (Exception ex)
+            {
+                throw new ConfigurationException($"Could not resolve current configuration from file path: {configurationFilePath}", ex);
+            }
+            
+            Run();
+        }
 
+        public void Run(Configuration cfg)
+        {
+            Current = cfg;
+            Run();
+        }
+
+        protected void Run()
+        {
+            var cfg = Current;
             if (!string.IsNullOrWhiteSpace(cfg.InputFolder))
             {
                 var outputPath = $"{cfg.InputFolder}\\parsed\\";
@@ -39,16 +58,10 @@ namespace LogFilterCore
 
                 cfg.OutputFolder = outputPath;
             }
-            
-            Run(cfg);
-        }
 
-        public void Run(Configuration cfg)
-        {
-            Current = cfg;
             cfg.Parser = InstantiateParser(cfg.ParserName);
-            BeginRunSummary(cfg.Parser.DateTimeFormat);            
-                        
+            BeginRunSummary(cfg.Parser.DateTimeFormat);
+
             //FileProcessor.CurrentFilePrefix = cfg.ReparseFilePrefix;
 
             var inputFiles = GatherInputFiles();
@@ -68,7 +81,7 @@ namespace LogFilterCore
             var filters = cfg.Filters;
             var runSummary = RunSummary;
             var currentSummary = parser.BeginSummary();
-            
+
             void ProgressCallback(int percent)
             {
                 ReportProgress("Progress: {0}", percent);
@@ -76,7 +89,7 @@ namespace LogFilterCore
 
             // clone filters for the run summary
             runSummary.Filters = cfg.Filters.Clone().ToArray();
-            
+
             // NOTE: files are ordered here by LastWriteTime
             // reverse it to preserve the order in the output files            
             foreach (var fileInfo in inputFiles.Reverse())
@@ -112,7 +125,7 @@ namespace LogFilterCore
                     {
                         runSummary.FilesWritten++;
                         currentSummary.FilesWritten++;
-                    }                    
+                    }
                 }
 
                 runSummary.EntriesConstructed += (ulong)logEntries.Length;
@@ -123,7 +136,7 @@ namespace LogFilterCore
 
                 runSummary.FilteredEntries += (ulong)filteredEntries.Length;
                 currentSummary.FilteredEntries = (ulong)filteredEntries.Length;
-                ReportProgress($"Entries: {logEntries.Length}, Filtered: {filteredEntries.Length}, Writing files...");                
+                ReportProgress($"Entries: {logEntries.Length}, Filtered: {filteredEntries.Length}, Writing files...");
             }
         }
 
