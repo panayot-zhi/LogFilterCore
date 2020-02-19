@@ -26,7 +26,7 @@ namespace LogFilterCore.Models
         /// </summary>
         public string OutputFolder { get; set; }
 
-        public ApplicationMode ApplicationMode { get; set; }
+        public VerboseMode VerboseMode { get; set; }
 
         /// <summary>
         /// Instructs the parser to take the last n number of file sorted by LastWriteTime.

@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 
 namespace LogFilterCore.Utility
 {    
-    public enum ApplicationMode
-    {
-        // TODO: Work in progress...
-
-        Verbose
+    public enum VerboseMode
+    {         
+        Debug,
+        Information,
+        Warning,
+        Error
     }
 }
