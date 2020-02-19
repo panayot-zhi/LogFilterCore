@@ -26,6 +26,9 @@ namespace LogFilterCore.Models
         /// </summary>
         public string OutputFolder { get; set; }
 
+        /// <summary>
+        /// Specifies tghe level of output the program provides during processing.
+        /// </summary>
         public VerboseMode VerboseMode { get; set; }
 
         /// <summary>
