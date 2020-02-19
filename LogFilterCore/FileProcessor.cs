@@ -7,19 +7,40 @@ using System.Text.RegularExpressions;
 using LogFilterCore.Models;
 using LogFilterCore.Utility.Tracing;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace LogFilterCore
 {
     public static class FileProcessor
-    {        
-        public static string SummaryFilePrefix { get; set; } = "summary";
-
-        //public static string CurrentFilePrefix { get; set; }
-
-        public static string GetPrefixFormat(string prefix)
+    {
+        public static JsonSerializerSettings DefaultSerializerSettings = new JsonSerializerSettings()
         {
-            return "[" + prefix.ToLowerInvariant() + "]-";
+            ContractResolver = new CamelCasePropertyNamesContractResolver(),
+            Converters = new List<JsonConverter>() { new StringEnumConverter() },
+            NullValueHandling = NullValueHandling.Include,
+            Formatting = Formatting.Indented
+        };
+
+        private static string GetPrefixFormat(string prefix)
+        {
+            prefix = prefix.ToLowerInvariant();
+            if (!prefix.StartsWith("["))
+            {
+                prefix = "[" + prefix;
+            }
+
+            if (!prefix.EndsWith("-"))
+            {
+                prefix = prefix + "-";                
+            }
+
+            if (!prefix.EndsWith("]-"))
+            {
+                prefix = prefix.Insert(prefix.Length - 2, "]");
+            }
+
+            return prefix;
         }
 
         public static bool IsFolder(string path)
@@ -38,7 +59,7 @@ namespace LogFilterCore
         {
             var fileName = Path.GetFileNameWithoutExtension(filePath);
             var fullFileName = Path.GetFileName(filePath);
-            var prefixedFileName = GetPrefixFormat(SummaryFilePrefix) + fileName + ".json";
+            var prefixedFileName = GetPrefixFormat("summary") + fileName + ".json";
 
             if (string.IsNullOrEmpty(inputFolder))
             {
@@ -65,20 +86,16 @@ namespace LogFilterCore
         }
 
 
-        public static Configuration LoadConfiguration(string path, JsonSerializerSettings settings = null)
+        public static Configuration LoadConfiguration(string path)
         {
-            if (settings == null)
-            {
-                // default settings for .NET (pretty)
-                settings = new JsonSerializerSettings()
-                {
-                    ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                    Formatting = Formatting.Indented
-                };
-            }
-
             var json = File.ReadAllText(path);
-            return JsonConvert.DeserializeObject<Configuration>(json, settings);
+            return JsonConvert.DeserializeObject<Configuration>(json, DefaultSerializerSettings);
+        }
+
+        public static void SaveConfiguration(string path, Configuration cfg)
+        {
+            var json = JsonConvert.SerializeObject(cfg, DefaultSerializerSettings);
+            WriteFile(path, json, true);
         }
 
         public static void SetReadonly(string path)
