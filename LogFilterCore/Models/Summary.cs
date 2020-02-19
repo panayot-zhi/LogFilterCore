@@ -1,13 +1,13 @@
-﻿using System;
-using LogFilterCore.Utility;
+﻿using LogFilterCore.Utility;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System;
 
 namespace LogFilterCore.Models
 {
     [Serializable]
     public class Summary
-    {        
+    {
         protected string DateTimeFormat { get; }
 
         public Summary(string dateTimeFormat)
@@ -43,6 +43,7 @@ namespace LogFilterCore.Models
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 Converters = new JsonConverter[] { new ParserDateTimeConverter(this.DateTimeFormat) },
+                NullValueHandling = NullValueHandling.Ignore,
                 Formatting = Formatting.Indented
             };
 

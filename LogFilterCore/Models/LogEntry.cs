@@ -1,5 +1,4 @@
 ﻿using System;
-using LogFilterCore.Utility;
 
 namespace LogFilterCore.Models
 {
@@ -9,7 +8,7 @@ namespace LogFilterCore.Models
     public class LogEntry
     {
         public string OriginalLine { get; }
-        
+
         public bool InResultSet { get; set; } = false;
 
         public LogEntry(string line)
@@ -37,18 +36,18 @@ namespace LogFilterCore.Models
         /// </summary>
         public string File { get; set; }
 
-        /// <summary>        
+        /// <summary>
         /// Used to output the user name for the currently active user (Principal.Identity.Name) (identity, u).
         /// </summary>
         public string Identity { get; set; }
 
-        /// <summary>        
+        /// <summary>
         /// Used to output location information of the caller which generated the logging event (location, l).
         /// </summary>
         public string Location { get; set; }
 
         /// <summary>
-        /// Used to output the level of the logging event (level, p).        
+        /// Used to output the level of the logging event (level, p).
         /// </summary>
         public string Level { get; set; }
 
@@ -58,27 +57,27 @@ namespace LogFilterCore.Models
         public string Line { get; set; }
 
         /// <summary>
-        /// Used to output the logger of the logging event. The logger conversion specifier can be optionally 
+        /// Used to output the logger of the logging event. The logger conversion specifier can be optionally
         /// followed by precision specifier, that is a decimal constant in brackets (logger, c).
         /// </summary>
         public string Logger { get; set; }
 
-        /// <summary>        
+        /// <summary>
         /// Used to output the application supplied message associated with the logging event (message, m).
         /// </summary>
         public string Message { get; set; }
 
-        /// <summary>        
+        /// <summary>
         /// Used to output the method name where the logging request was issued (method, M).
         /// </summary>
         public string Method { get; set; }
 
-        /// <summary>        
+        /// <summary>
         /// Outputs the platform dependent line separator character or characters (newline, n).
         /// </summary>
         public string NewLine = Environment.NewLine;
 
-        /// <summary>        
+        /// <summary>
         /// Used to output the NDC (nested diagnostic context) associated with the thread that generated the logging event (ndc, x).
         /// </summary>
         public string Ndc { get; set; }
@@ -88,12 +87,12 @@ namespace LogFilterCore.Models
         /// </summary>
         public string Property { get; set; }
 
-        /// <summary>        
-        /// Used to output the stack trace of the logging event The stack trace level specifier may be enclosed between braces (stacktrace).        
+        /// <summary>
+        /// Used to output the stack trace of the logging event The stack trace level specifier may be enclosed between braces (stacktrace).
         /// </summary>
         public string Stacktrace { get; set; }
 
-        /// <summary>        
+        /// <summary>
         /// Used to output the stack trace of the logging event The stack trace level specifier may be enclosed between braces (stacktracedetail).
         /// </summary>
         public string StacktraceDetail { get; set; }
@@ -103,24 +102,24 @@ namespace LogFilterCore.Models
         /// </summary>
         public string Timestamp { get; set; }
 
-        /// <summary>        
+        /// <summary>
         /// Used to output the name of the thread that generated the logging event. Uses the thread number if no name is available (thread, t).
         /// </summary>
         public string Thread { get; set; }
 
-        /// <summary>        
-        /// Used to output the fully qualified type name of the caller issuing the logging request. 
+        /// <summary>
+        /// Used to output the fully qualified type name of the caller issuing the logging request.
         /// This conversion specifier can be optionally followed by precision specifier, that is a decimal constant in brackets (type, class, C).
         /// </summary>
         public string Type { get; set; }
 
-        /// <summary>        
+        /// <summary>
         /// Used to output the WindowsIdentity for the currently active user (username, w).
         /// </summary>
         public string Username { get; set; }
 
-        /// <summary>        
-        /// Used to output the date of the logging event in universal time. The date conversion 
+        /// <summary>
+        /// Used to output the date of the logging event in universal time. The date conversion
         /// specifier may be followed by a date format specifier enclosed between braces (utcdate, ).
         /// </summary>
         public DateTime? UtcDate { get; set; }

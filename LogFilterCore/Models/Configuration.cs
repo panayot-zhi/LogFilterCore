@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using LogFilterCore.Parsers;
+﻿using LogFilterCore.Parsers;
 using LogFilterCore.Utility;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 
 namespace LogFilterCore.Models
 {
@@ -14,7 +14,7 @@ namespace LogFilterCore.Models
         /// Assigning this will set the output folder in the directory where the file resides.
         /// </summary>
         public string InputFile { get; set; }
-        
+
         /// <summary>
         /// The input log folder from which to take all the log files.
         /// Assigning this will keep the directory structure when outputting substituing input files with folders.
@@ -25,6 +25,8 @@ namespace LogFilterCore.Models
         /// The output folder where the directory structure with the result sets will be created.
         /// </summary>
         public string OutputFolder { get; set; }
+
+        public ApplicationMode ApplicationMode { get; set; }
 
         /// <summary>
         /// Instructs the parser to take the last n number of file sorted by LastWriteTime.
@@ -41,13 +43,13 @@ namespace LogFilterCore.Models
         /// </summary>
         public bool CopyOriginal { get; set; }
 
-        /// <summary>        
-        /// Take as input previously parsed files. If it is null - 
-        /// no reparsing is done, all log files from the input directory are taken;        
+        /// <summary>
+        /// Take as input previously parsed files. If it is null -
+        /// no reparsing is done, all log files from the input directory are taken;
         /// if it has value - only files with that specific prefix are taken.
         /// </summary>
         public string Reparse { get; set; }
-        
+
         /// <summary>
         /// Begin date for files prefiltering.
         /// </summary>
@@ -58,26 +60,24 @@ namespace LogFilterCore.Models
         /// </summary>
         public DateTime? EndDateTime { get; set; }
 
-
-
         /// <summary>
-        /// Split log entries by thread(s). If it is null - no thread splitting is performed; if it is empty, 
+        /// Split log entries by thread(s). If it is null - no thread splitting is performed; if it is empty,
         /// all filtered entries are separated by their respective threads;
-        /// if it has a specific value(s) - results in a file with logs from this specific thread(s) only.        
+        /// if it has a specific value(s) - results in a file with logs from this specific thread(s) only.
         /// </summary>
         public string[] SplitByThreads { get; set; }
 
         /// <summary>
-        /// Split log entries by user(s). If it is null - no user splitting is performed; if it is empty, 
+        /// Split log entries by user(s). If it is null - no user splitting is performed; if it is empty,
         /// all filtered entries are separated by their respective users;
-        /// if it has a specific value(s) - results in a file with logs from these user(s) only.        
+        /// if it has a specific value(s) - results in a file with logs from these user(s) only.
         /// </summary>
         public string[] SplitByUsers { get; set; }
 
         /// <summary>
-        /// Split log entries by level(s). If it is null - no log level splitting is performed; if it is empty, 
+        /// Split log entries by level(s). If it is null - no log level splitting is performed; if it is empty,
         /// all filtered entries are separated by their respective log levels;
-        /// if it has a specific value(s) - results in a file(s) with logs from this specific log level(s).        
+        /// if it has a specific value(s) - results in a file(s) with logs from this specific log level(s).
         /// </summary>
         public string[] SplitByLogLevels { get; set; }
 
@@ -85,8 +85,6 @@ namespace LogFilterCore.Models
         /// List of filters to be applied on each of the log entries.
         /// </summary>
         public List<Filter> Filters { get; set; }
-
-
 
         /// <summary>
         /// Name of the parser that will be instantiated to process the input log folder.
