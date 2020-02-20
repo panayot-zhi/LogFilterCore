@@ -50,20 +50,31 @@ namespace LogFilterCore
                 var outputPath = $"{cfg.InputFolder}\\parsed\\";
                 cfg.OutputFolder = outputPath;
             }
-
-            if (!string.IsNullOrWhiteSpace(cfg.InputFile))
+            else if (!string.IsNullOrWhiteSpace(cfg.InputFile))
             {
                 var fileDirectory = FileProcessor.GetFileDirectory(cfg.InputFile);
                 var outputPath = $"{fileDirectory}\\parsed\\";
 
                 cfg.OutputFolder = outputPath;
             }
+            else
+            {
+                throw new ConfigurationException($"No input, please specify either input file or folder.");
+            }
+
+            if (cfg.Filters == null || !cfg.Filters.Any())
+            {
+                throw new ConfigurationException($"No filters provided, please provide at least one filter.");
+            }
 
             cfg.Parser = InstantiateParser(cfg.ParserName);
+
+            var parser = cfg.Parser;
+            var filters = cfg.Filters;
+            var runSummary = RunSummary;
             BeginRunSummary(cfg.Parser.DateTimeFormat);
-
-            //FileProcessor.CurrentFilePrefix = cfg.ReparseFilePrefix;
-
+                    
+            // pre-filtering is done here
             var inputFiles = GatherInputFiles();
 
             if (!inputFiles.Any())
@@ -72,35 +83,25 @@ namespace LogFilterCore
                 return;
             }
 
-            if (cfg.Filters == null)
-            {
-                cfg.Filters = new List<Filter>();
-            }
-
-            var parser = cfg.Parser;
-            var filters = cfg.Filters;
-            var runSummary = RunSummary;
-            var currentSummary = parser.BeginSummary();
-
             void ProgressCallback(int percent)
             {
                 ReportProgress("Progress: {0}", percent);
-            }
-
-            // clone filters for the run summary
-            runSummary.Filters = cfg.Filters.Clone().ToArray();
-
+            }                      
+            
             // NOTE: files are ordered here by LastWriteTime
             // reverse it to preserve the order in the output files            
             foreach (var fileInfo in inputFiles.Reverse())
             {
                 var filePath = fileInfo.FullName;
+                var currentSummary = parser.BeginSummary();
                 ReportProgress($"Reading file '{filePath}'...");
 
                 var logLines = FileProcessor.ReadLogLines(filePath, ProgressCallback, out var linesRead, parser.Expression);
 
                 if (!string.IsNullOrEmpty(cfg.Reparse))
                 {
+                    // if we're reparsing we need to replace the original file name (thhat's with a prefix)
+                    // with a one without a prefix, and prefix it accordingly during this parser run
                     filePath = FileProcessor.ExtractFileName(filePath, cfg.Reparse);
                 }
 
@@ -119,8 +120,8 @@ namespace LogFilterCore
 
                 if (parser.NonStandardLines.Any())
                 {
-                    // write failed log entries and continue
-                    var outputPath = FileProcessor.GetOutputFilePath(filePath, cfg.InputFolder, cfg.OutputFolder, "FAILED-" + cfg.ParserName);
+                    // write failed log entries and continue with the parsing run (if it didn't throw an exception, threshold has not been exceeded)
+                    var outputPath = FileProcessor.GetOutputFilePath(filePath, cfg.InputFolder, cfg.OutputFolder, $"[{cfg.ParserName}-FAILED]-");
                     if (FileProcessor.WriteFile(outputPath, parser.NonStandardLines, cfg.OverwriteFiles))
                     {
                         runSummary.FilesWritten++;
@@ -130,12 +131,14 @@ namespace LogFilterCore
 
                 runSummary.EntriesConstructed += (ulong)logEntries.Length;
                 currentSummary.EntriesConstructed = (ulong)logEntries.Length;
+
                 ReportProgress($"Logs: {logLines.Length}, Constructed: {logEntries.Length}, Filtering file...");
 
                 var filteredEntries = parser.FilterLogEntries(logEntries, ProgressCallback);
 
                 runSummary.FilteredEntries += (ulong)filteredEntries.Length;
                 currentSummary.FilteredEntries = (ulong)filteredEntries.Length;
+
                 ReportProgress($"Entries: {logEntries.Length}, Filtered: {filteredEntries.Length}, Writing files...");
             }
         }
@@ -149,6 +152,12 @@ namespace LogFilterCore
 
             if (!string.IsNullOrEmpty(cfg.InputFile))
             {
+                if (!string.IsNullOrEmpty(cfg.InputFolder))
+                {
+                    // TODO: at level WARN!
+                    ReportProgress("Both input file and input folder are set, disregarding the latter.");
+                }
+
                 return new[] { new FileInfo(cfg.InputFile) };
             }
 
@@ -158,7 +167,7 @@ namespace LogFilterCore
             {                
                 ReportProgress($"Gathering previously parsed files with the prefix '{cfg.Reparse}'.");
 
-                // if we are reparsing, gather the files with the ReparseFilePrefix only                
+                // if we are reparsing, gather the files with the Reparse prefix only                
                 inputFiles = FileProcessor.GetPrefixedLogsFromDirectory(cfg.InputFolder, cfg.Reparse)
                     .Select(x => new FileInfo(x))
                     .OrderByDescending(x => x.LastWriteTime);
@@ -204,7 +213,7 @@ namespace LogFilterCore
                     return false;
                 });
 
-                ReportProgress($"No overwriting of files, skipping {skippingFiles} files.");
+                ReportProgress($"Overwriting of files is disabled, pre-filtered {skippingFiles} files already processed.");
             }
 
             return inputFiles.ToArray();
@@ -231,6 +240,11 @@ namespace LogFilterCore
         {
             RunSummary = new Summary(datetimeFormat);
             RunSummary.BeginProcessTimestamp = DateTime.Now;
+
+            // make a copy of the filters and anul current counters
+            var filtersCopy = Current.Filters.Clone();
+            filtersCopy.ForEach((x) => { x.Count = 0; });
+            RunSummary.Filters = filtersCopy.ToArray();            
         }
 
         private void EndRunSummary()
@@ -240,7 +254,7 @@ namespace LogFilterCore
 
             summary.EndProcessTimestamp = DateTime.Now;
 
-            // write summary, run summary, set readonly
+            // write run summary, set readonly
             var summaryOutputFilePath = FileProcessor.GetRunSummaryFilePath(cfg.OutputFolder);
             FileProcessor.WriteFile(summaryOutputFilePath, summary.ToJson(), cfg.OverwriteFiles);
             FileProcessor.SetReadonly(summaryOutputFilePath);
