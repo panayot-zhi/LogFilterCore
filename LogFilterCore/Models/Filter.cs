@@ -1,12 +1,16 @@
 ﻿using LogFilterCore.Utility;
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
 
 namespace LogFilterCore.Models
 {
     [Serializable]
     public class Filter
     {
+        private List<LogEntry> _entries;
+
         /// <summary>
         /// Specifies the human-friendly name of this filter.
         /// It may be included in the output file name if WriteToFile flag is true.
@@ -58,6 +62,9 @@ namespace LogFilterCore.Models
         /// <summary>
         /// The filter value to be matched against the value of the log entry property.
         /// </summary>
-        public Regex Value { get; set; }
+        public Regex Value { get; set; }        
+
+        [JsonIgnore]
+        public List<LogEntry> Entries => _entries ?? (_entries = new List<LogEntry>());
     }
 }
