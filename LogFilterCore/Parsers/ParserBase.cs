@@ -15,7 +15,7 @@ namespace LogFilterCore.Parsers
 
         public virtual string TimeFormat { get; } = "HH:mm:ss,fff";
 
-        public virtual string DateTimeFormat => $"{this.DateFormat} {this.TimeFormat}";
+        public virtual string DateTimeFormat => $"{DateFormat} {TimeFormat}";
 
         public virtual string FileFormat { get; } = "yyyy-MM-dd";
 
@@ -25,10 +25,9 @@ namespace LogFilterCore.Parsers
 
         private Configuration Configuration { get; set; }
 
-        public const int NonStandardLinesThreshold = 100;
-        public List<string> NonStandardLines = new List<string>(NonStandardLinesThreshold);
+        public static int NonStandardLinesThreshold = 100;
 
-
+        public List<string> NonStandardLines { get; } = new List<string>(NonStandardLinesThreshold);
         
         protected ParserBase(Configuration cfg)
         {
@@ -121,40 +120,167 @@ namespace LogFilterCore.Parsers
                     continue;
                 }
 
-                foreach (var filter in filters)
+                // NOTE: configuration filters preceed other filtering
+
+                // filter logs by begin date less than the one specified by the filter value
+                if (cfg.BeginDateTime.HasValue && (currentEntry.Date < cfg.BeginDateTime.Value || currentEntry.UtcDate < cfg.BeginDateTime.Value))
                 {
-                    /*var match = filter.Apply(currentEntry);
-                    if (!match.HasValue)
-                    {
-                        // filter application indecisive, continue with another filter
-                        continue;
-                    }
-*/
-                    // TODO: Process filter application
+                    continue;
                 }
 
+                // filter logs by end date greater than the specified; this is also an end condition
+                if (cfg.EndDateTime.HasValue && (currentEntry.Date > cfg.EndDateTime.Value || currentEntry.UtcDate > cfg.EndDateTime.Value))
+                {
+                    return filteredEntries.ToArray();
+                }
+
+                // if threads are specified with concrete values, filter entries from other threads
+                if (cfg.SplitByThreads != null && cfg.SplitByThreads.Length > 0)
+                {
+                    if (!cfg.SplitByThreads.Contains(currentEntry.Thread))
+                    {
+                        continue;
+                    }                    
+                }
+
+                // if users are specified with concrete values, filter entries with other users
+                if (cfg.SplitByUsers != null && cfg.SplitByUsers.Length > 0)
+                {
+                    if (!cfg.SplitByUsers.Contains(currentEntry.Identity) || !cfg.SplitByUsers.Contains(currentEntry.Username))
+                    {
+                        continue;
+                    }                    
+                }
+
+                // NOTE: begin filter processing
+
+                foreach (var filter in filters)
+                {
+                    var targetValue = ResolveFilterPropertyValue(currentEntry, filter);
+                    if (!filter.Value.IsMatch(targetValue))
+                    {
+                        // filter did not match,
+                        // proceed to next filter
+                        continue;
+                    }
+
+                    filter.Count++;
+                    if (filter.Type == FilterType.Exclude)
+                    {
+                        // this entry should not be 
+                        // added to the result entry
+                        break;
+                    }
+
+                    if (filter.Type == FilterType.Include)
+                    {
+                        // add to the filtered entries result set and continue
+                        AddLogEntry(filteredEntries, currentEntry, logEntries, index);
+                        break;
+                    }
+
+                    if (filter.Type == FilterType.WriteToFile)
+                    {
+                        // add to the specific filter entries result set and continue
+                        AddLogEntry(filter.Entries, currentEntry, logEntries, index);
+                        break;
+                    }
+
+                    if (filter.Type == FilterType.IncludeAndWriteToFile)
+                    {
+                        // add to both the specific filter and the filtered result set
+                        AddLogEntry(filteredEntries, currentEntry, logEntries, index);
+                        AddLogEntry(filter.Entries, currentEntry, logEntries, index);
+                        break;
+                    }
+                }                
             }
 
             reportProgress?.Invoke(100);
             return filteredEntries.ToArray();
         }
 
+        protected virtual string ResolveFilterPropertyValue(LogEntry currentEntry, Filter filter)
+        {
+            var targetProperty = typeof(LogEntry).GetProperty(filter.Property);
+            if (targetProperty == null)
+            {
+                throw new ParserException($"Invalid filter property name, no such property in LogEntry '{filter.Property}'.");
+            }
+
+            var targetPropertyValue = targetProperty.GetValue(currentEntry);
+
+            string stringTargetPropertyValue;
+
+            while (true)
+            {
+                // most of the filters are for string properties
+                stringTargetPropertyValue = targetPropertyValue as string;
+                if (stringTargetPropertyValue != null)
+                {
+                    break;
+                }
+
+                if (targetPropertyValue is DateTime dateTimeTargetPropertyValue)
+                {
+                    // format dateTimeValues to string dates with the parser dat
+                    // TODO: Why use DateTime? in the LogEntry class at all then?
+                    stringTargetPropertyValue = dateTimeTargetPropertyValue.ToString(DateTimeFormat);
+                    break;
+                }
+
+                throw new ParserException($"The value of the property ({filter.Property}: {targetPropertyValue}) cannot be cast to a known parser type.");
+            }
+
+            return stringTargetPropertyValue;
+        }
+
+        private static void MarkAndAddEntry(ICollection<LogEntry> list, LogEntry currentEntry)
+        {
+            currentEntry.InResultSet = true;
+            list.Add(currentEntry);
+        }
+
+        public static void AddLogEntry(List<LogEntry> resultEntries, LogEntry currentEntry, LogEntry[] logEntries, int context, int? index = null)
+        {
+            if (context == 0)
+            {
+                MarkAndAddEntry(resultEntries, currentEntry);
+                return;
+            }
+
+            if (!index.HasValue)
+            {
+                index = Array.IndexOf(logEntries, currentEntry);
+            }
+
+            var current = index.Value - context;
+            while (current <= index.Value + context)
+            {
+                if (current >= 0 && current < logEntries.Length && !logEntries[current].InResultSet)
+                {
+                    MarkAndAddEntry(resultEntries, logEntries[current]);
+                }
+
+                current++;
+            }
+        }
+
         public virtual Summary BeginSummary()
         {
-            Summary = new Summary(this.DateTimeFormat);
-            this.Configuration.Filters.ForEach(filter =>
-            {
-                filter.Count = 0;
-            });
+            Summary = new Summary(DateTimeFormat);
 
-            this.Summary.Filters = this.Configuration.Filters.Clone().ToArray();
-            this.Summary.BeginProcessTimestamp = DateTime.Now;
-            return this.Summary;
+            // make a copy of the filters and anul current counters
+            var filtersCopy = Configuration.Filters.Clone();
+            filtersCopy.ForEach(x => { x.Count = 0; });
+            Summary.Filters = filtersCopy.ToArray();
+            Summary.BeginProcessTimestamp = DateTime.Now;
+            return Summary;
         }
 
         public virtual void EndSummary()
         {
-            this.Summary.EndProcessTimestamp = DateTime.Now;
+            Summary.EndProcessTimestamp = DateTime.Now;
         }
     }
 }
