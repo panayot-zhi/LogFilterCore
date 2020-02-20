@@ -24,20 +24,20 @@ namespace LogFilterCore
 
         private static string GetPrefixFormat(string prefix)
         {
-            prefix = prefix.ToLowerInvariant();
+            //prefix = prefix.ToLowerInvariant();
             if (!prefix.StartsWith("["))
             {
-                prefix = "[" + prefix;
+                prefix = "[" + prefix.ToLowerInvariant();
             }
 
             if (!prefix.EndsWith("-"))
             {
-                prefix = prefix + "-";                
+                prefix = prefix.ToLowerInvariant() + "-";                
             }
 
             if (!prefix.EndsWith("]-"))
             {
-                prefix = prefix.Insert(prefix.Length - 2, "]");
+                prefix = prefix.Insert(prefix.Length - 2, "]").ToLowerInvariant();
             }
 
             return prefix;
@@ -250,7 +250,7 @@ namespace LogFilterCore
         {
             if (progressCallback == null)
             {
-                throw new ArgumentNullException(nameof(progressCallback));
+                throw new FileProcessorException("No progress callback provided, please call this function with a progress callback.");
             }
 
             long totalRead = 0;
@@ -312,7 +312,7 @@ namespace LogFilterCore
                         if (accumulator == null)
                         {
                             // the first line does not conform to line standards
-                            throw new ParserException($"The first line in file does not conform to line standards: {matcher}.");
+                            throw new FileProcessorException($"The first line in file does not conform to line standards: {matcher}.");
                         }
 
                         // message should be appended to the accumulator
