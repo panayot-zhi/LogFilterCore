@@ -1,5 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Text.RegularExpressions;
 using System.Threading;
+using LogFilterCore.Models;
 
 namespace LogFilterCore
 {
@@ -41,8 +44,6 @@ namespace LogFilterCore
                 }
             }
 
-            var runner = new ConfigurationRunner(ReportProgress);
-
             foreach (var arg in args)
             {
                 if (!FileProcessor.IsFile(arg))
@@ -54,12 +55,15 @@ namespace LogFilterCore
 
                 try
                 {
+                    Console.WriteLine("Running configuration: " + arg);
+                    var runner = new ConfigurationRunner(ReportProgress);
                     runner.Run(arg);
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error: " + ex.Message);
                     Console.WriteLine(ex);
+                    Console.ReadKey();
                 }
             }
 
