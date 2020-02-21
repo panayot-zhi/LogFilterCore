@@ -9,8 +9,6 @@ namespace LogFilterCore.Models
     [Serializable]
     public class Filter
     {
-        private List<LogEntry> _entries;
-
         /// <summary>
         /// Specifies the human-friendly name of this filter.
         /// It may be included in the output file name if WriteToFile flag is true.
@@ -65,6 +63,7 @@ namespace LogFilterCore.Models
         public Regex Value { get; set; }        // TODO: Use a FilterValue class here
 
         [JsonIgnore]
-        public List<LogEntry> Entries => _entries ?? (_entries = new List<LogEntry>());
+        [NonSerialized]
+        public List<LogEntry> Entries;
     }
 }
