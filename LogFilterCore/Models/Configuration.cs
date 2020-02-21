@@ -75,7 +75,7 @@ namespace LogFilterCore.Models
         /// all filtered entries are separated by their respective users;
         /// if it has a specific value(s) - results in a file with logs from these user(s) only.
         /// </summary>
-        public string[] SplitByUsers { get; set; }
+        public string[] SplitByIdentities { get; set; }
 
         /// <summary>
         /// Split log entries by level(s). If it is null - no log level splitting is performed; if it is empty,
