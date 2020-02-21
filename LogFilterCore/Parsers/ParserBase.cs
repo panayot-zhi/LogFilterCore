@@ -159,9 +159,10 @@ namespace LogFilterCore.Parsers
                 }
 
                 // if users are specified with concrete values, filter entries with other users
-                if (cfg.SplitByUsers != null && cfg.SplitByUsers.Length > 0)
+                if (cfg.SplitByIdentities != null && cfg.SplitByIdentities.Length > 0)
                 {
-                    if (!cfg.SplitByUsers.Contains(currentEntry.Identity) || !cfg.SplitByUsers.Contains(currentEntry.Username))
+                    // TODO: If need be add SplitByUsernames which should point to filtering of WIndowsIdentity entries
+                    if (!cfg.SplitByIdentities.Contains(currentEntry.Identity) /*|| !cfg.SplitByUsers.Contains(currentEntry.Username)*/) 
                     {
                         continue;
                     }                    
