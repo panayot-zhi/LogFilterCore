@@ -75,10 +75,10 @@ namespace LogFilterCore
 
             cfg.Parser = InstantiateParser(cfg.ParserName);
 
-            var parser = cfg.Parser;            
-            var runSummary = RunSummary;
+            var parser = cfg.Parser;                        
             BeginRunSummary(cfg.Parser.DateTimeFormat);
-                    
+            var runSummary = RunSummary;
+
             // pre-filtering is done here
             var inputFiles = GatherInputFiles();
 
