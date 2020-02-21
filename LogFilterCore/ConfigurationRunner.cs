@@ -45,21 +45,27 @@ namespace LogFilterCore
         protected virtual void Run()
         {
             var cfg = Current;
-            if (!string.IsNullOrWhiteSpace(cfg.InputFolder))
-            {
-                var outputPath = $"{cfg.InputFolder}\\parsed\\";
-                cfg.OutputFolder = outputPath;
-            }
-            else if (!string.IsNullOrWhiteSpace(cfg.InputFile))
-            {
-                var fileDirectory = FileProcessor.GetFileDirectory(cfg.InputFile);
-                var outputPath = $"{fileDirectory}\\parsed\\";
 
-                cfg.OutputFolder = outputPath;
-            }
-            else
+            // TODO: perform configuration checks!
+
+            if (string.IsNullOrEmpty(cfg.OutputFolder))
             {
-                throw new ConfigurationException($"No input, please specify either input file or folder.");
+                if (!string.IsNullOrWhiteSpace(cfg.InputFolder))
+                {
+                    var outputPath = $"{cfg.InputFolder}\\parsed\\";
+                    cfg.OutputFolder = outputPath;
+                }
+                else if (!string.IsNullOrWhiteSpace(cfg.InputFile))
+                {
+                    var fileDirectory = FileProcessor.GetFileDirectory(cfg.InputFile);
+                    var outputPath = $"{fileDirectory}\\parsed\\";
+
+                    cfg.OutputFolder = outputPath;
+                }
+                else
+                {
+                    throw new ConfigurationException($"No input, please specify either input file or folder.");
+                }
             }
 
             if (cfg.Filters == null || !cfg.Filters.Any())
