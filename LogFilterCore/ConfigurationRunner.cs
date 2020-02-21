@@ -399,24 +399,16 @@ namespace LogFilterCore
                 inputFiles = inputFiles.Take(cfg.TakeLastFiles.Value);
             }
 
+            ReportProgress($"Overwriting of files is '{cfg.OverwriteFiles}'.");
+
             if (!cfg.OverwriteFiles)
-            {
-                int skippingFiles = 0;
-                inputFiles = inputFiles.Where(x =>
-                {
-                    if (!FileProcessor.HasBeenProcessed(x, cfg.InputFolder, cfg.OutputFolder, cfg.Reparse))
-                    {
-                        return true;
-                    }
-
-                    skippingFiles++;
-                    return false;
-                });
-
-                ReportProgress($"Overwriting of files is disabled, pre-filtered {skippingFiles} files already processed.");
+            {                
+                inputFiles = inputFiles.Where(x => !FileProcessor.HasBeenProcessed(x, cfg.InputFolder, cfg.OutputFolder, cfg.Reparse));                
             }
 
-            return inputFiles.ToArray();
+            var inputFilesArray = inputFiles.ToArray();
+            ReportProgress($"Pre-filtering resolved {inputFilesArray.Length} file(s) ready for proccessing.");
+            return inputFilesArray;
         }
 
         protected ParserBase InstantiateParser(string parserName)
