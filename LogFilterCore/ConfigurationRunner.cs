@@ -420,7 +420,8 @@ namespace LogFilterCore
                 type = Type.GetType($"LogFilterCore.Parsers.{parserName}", throwOnError: true);                
             }
 
-            if (!(Activator.CreateInstance(type) is ParserBase parser))
+            object[] parameters = { Current };
+            if (!(Activator.CreateInstance(type, parameters) is ParserBase parser))
             {
                 throw new ConfigurationException($"Could not create a parser instance with the type of '{type}'.");
             }
