@@ -96,14 +96,8 @@ namespace LogFilterCore
                 {
                     Run(fileInfo);
                 }
-                catch (FileProcessorException fpex)
-                {
-                    ReportProgress(fpex.Message);
-                }
-                catch (ParserException pex)
-                {
-                    ReportProgress(pex.Message);
-
+                catch (ParserException)
+                {                    
                     if (parser.NonStandardLines.Any())
                     {
                         // write non-standard entries to tunSummary
@@ -114,12 +108,10 @@ namespace LogFilterCore
                         if (FileProcessor.WriteFile(outputPath, parser.NonStandardLines, cfg.OverwriteFiles))
                         {
                             runSummary.FilesWritten++;
-                        }                                                                
+                        }
                     }
-                }
-                catch (Exception ex)
-                {
-                    ReportProgress(ex.Message);
+
+                    throw;
                 }
             }
 
