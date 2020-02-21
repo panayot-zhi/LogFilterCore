@@ -15,7 +15,7 @@ namespace LogFilterCore.Parsers
 
         public virtual string TimeFormat { get; } = "HH:mm:ss,fff";
 
-        public virtual string DateTimeFormat => $"{DateFormat} {TimeFormat}";
+        public string DateTimeFormat => $"{DateFormat} {TimeFormat}";
 
         public virtual string FileFormat { get; } = "yyyy-MM-dd";
 
@@ -23,7 +23,7 @@ namespace LogFilterCore.Parsers
 
         protected virtual Summary Summary { get; set; }
 
-        private Configuration Configuration { get; set; }
+        protected Configuration Configuration { get; set; }
 
         public static int NonStandardLinesThreshold = 100;
 
@@ -161,7 +161,7 @@ namespace LogFilterCore.Parsers
                 // if users are specified with concrete values, filter entries with other users
                 if (cfg.SplitByIdentities != null && cfg.SplitByIdentities.Length > 0)
                 {
-                    // TODO: If need be add SplitByUsernames which should point to filtering of WIndowsIdentity entries
+                    // NOTE: If need be add SplitByUsernames which should point to filtering of WIndowsIdentity entries
                     if (!cfg.SplitByIdentities.Contains(currentEntry.Identity) /*|| !cfg.SplitByUsers.Contains(currentEntry.Username)*/) 
                     {
                         continue;
@@ -257,7 +257,7 @@ namespace LogFilterCore.Parsers
             list.Add(currentEntry);
         }
 
-        public static void AddLogEntry(List<LogEntry> resultEntries, LogEntry currentEntry, LogEntry[] logEntries, int context, int? index = null)
+        public void AddLogEntry(List<LogEntry> resultEntries, LogEntry currentEntry, LogEntry[] logEntries, int context, int? index = null)
         {
             if (context == 0)
             {
