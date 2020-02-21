@@ -264,7 +264,7 @@ namespace LogFilterCore.Parsers
             list.Add(currentEntry);
         }
 
-        public void AddLogEntry(List<LogEntry> resultEntries, LogEntry currentEntry, LogEntry[] logEntries, int context, int? index = null)
+        public void AddLogEntry(List<LogEntry> resultEntries, LogEntry currentEntry, LogEntry[] logEntries, int context, int? index)
         {
             if (context == 0)
             {
