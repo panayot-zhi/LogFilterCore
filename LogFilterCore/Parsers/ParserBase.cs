@@ -184,29 +184,29 @@ namespace LogFilterCore.Parsers
                     if (filter.Type == FilterType.Exclude)
                     {
                         // this entry should not be 
-                        // added to the result entry
+                        // added to the result set
                         break;
                     }
 
                     if (filter.Type == FilterType.Include)
                     {
                         // add to the filtered entries result set and continue
-                        AddLogEntry(filteredEntries, currentEntry, logEntries, index);
+                        AddLogEntry(filteredEntries, currentEntry, logEntries, filter.Context, index);
                         break;
                     }
 
                     if (filter.Type == FilterType.WriteToFile)
                     {
                         // add to the specific filter entries result set and continue
-                        AddLogEntry(filter.Entries, currentEntry, logEntries, index);
+                        AddLogEntry(filter.Entries, currentEntry, logEntries, filter.Context, index);
                         break;
                     }
 
                     if (filter.Type == FilterType.IncludeAndWriteToFile)
                     {
                         // add to both the specific filter and the filtered result set
-                        AddLogEntry(filteredEntries, currentEntry, logEntries, index);
-                        AddLogEntry(filter.Entries, currentEntry, logEntries, index);
+                        AddLogEntry(filteredEntries, currentEntry, logEntries, filter.Context, index);
+                        AddLogEntry(filter.Entries, currentEntry, logEntries, filter.Context, index);
                         break;
                     }
                 }                
