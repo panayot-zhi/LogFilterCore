@@ -37,7 +37,7 @@ namespace LogFilterCore
 
             if (!prefix.EndsWith("]-"))
             {
-                prefix = prefix.Insert(prefix.Length - 2, "]").ToLowerInvariant();
+                prefix = prefix.Insert(prefix.Length - 1, "]").ToLowerInvariant();
             }
 
             return prefix;
