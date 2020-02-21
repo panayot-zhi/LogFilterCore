@@ -139,6 +139,16 @@ namespace LogFilterCore.Parsers
                     return filteredEntries.ToArray();
                 }
 
+                // if log levels are specified with concrete values, filter entries at other levels
+                if (cfg.SplitByLogLevels != null && cfg.SplitByLogLevels.Length > 0)
+                {
+                    // TODO: Maybe this should be case insensitive
+                    if (!cfg.SplitByLogLevels.Contains(currentEntry.Level))
+                    {
+                        continue;
+                    }
+                }
+
                 // if threads are specified with concrete values, filter entries from other threads
                 if (cfg.SplitByThreads != null && cfg.SplitByThreads.Length > 0)
                 {
