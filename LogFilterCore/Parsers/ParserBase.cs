@@ -293,17 +293,32 @@ namespace LogFilterCore.Parsers
         {
             Summary = new Summary(DateTimeFormat);
 
-            // make a copy of the filters and anul current counters
-            var filtersCopy = Configuration.Filters.Clone();
-            filtersCopy.ForEach(x => { x.Count = 0; });
-            Summary.Filters = filtersCopy.ToArray();
+            // Configuration.Filters
+            // annul accumulated counters            
+            // initialize entries list if neccessary
+            var filters = Configuration.Filters;
+            filters.ForEach(x =>
+            {
+                x.Count = 0;
+                x.Entries = 
+                    x.Type == FilterType.WriteToFile || 
+                    x.Type == FilterType.IncludeAndWriteToFile
+                    ? new List<LogEntry>()
+                    : null;
+            });
+
             Summary.BeginProcessTimestamp = DateTime.Now;
+
             return Summary;
         }
 
         public virtual void EndSummary()
         {
-            Summary.EndProcessTimestamp = DateTime.Now;
+            // make a copy of the filters and assign to summary
+            var filters = Configuration.Filters;           
+            var filtersCopy = filters.Clone();
+            Summary.Filters = filtersCopy.ToArray();
+            Summary.EndProcessTimestamp = DateTime.Now;            
         }
     }
 }
