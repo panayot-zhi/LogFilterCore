@@ -139,7 +139,7 @@ namespace LogFilterCore
 
             void ProgressCallback(int percent)
             {
-                ReportProgress("Progress: {0}", percent);
+                ReportProgress(percent == 100 ? ("Done!       " + Environment.NewLine) : "Processing...", percent);
             }
 
             var logLines = FileProcessor.ReadLogLines(filePath, ProgressCallback, out var linesRead, parser.Expression);
@@ -204,7 +204,7 @@ namespace LogFilterCore
                     currentSummary.LinesWritten = (ulong)filteredLines.Length;
                 }
 
-                ReportProgress($"ALL: {filteredEntries.Length}");
+                ReportProgress($"FILTERED: {filteredEntries.Length}");
             }
             else
             {
@@ -374,7 +374,7 @@ namespace LogFilterCore
             }
             else
             {
-                ReportProgress("Gathering all logs files from input directory.");
+                ReportProgress("Gathering all log files from input directory.");
 
                 // if we're not, gather ALL log files from the directory
                 inputFiles = FileProcessor.GetLogsFromDirectory(cfg.InputFolder)
