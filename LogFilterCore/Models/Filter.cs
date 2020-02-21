@@ -62,7 +62,7 @@ namespace LogFilterCore.Models
         /// <summary>
         /// The filter value to be matched against the value of the log entry property.
         /// </summary>
-        public Regex Value { get; set; }        
+        public Regex Value { get; set; }        // TODO: Use a FilterValue class here
 
         [JsonIgnore]
         public List<LogEntry> Entries => _entries ?? (_entries = new List<LogEntry>());
