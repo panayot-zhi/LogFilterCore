@@ -218,6 +218,13 @@ namespace LogFilterCore.Parsers
 
         protected virtual string ResolveFilterPropertyValue(LogEntry currentEntry, Filter filter)
         {
+            // if no property specified
+            // filter applies to whole line
+            if (filter.Property == null)
+            {
+                return currentEntry.OriginalLine;
+            }
+
             var targetProperty = typeof(LogEntry).GetProperty(filter.Property);
             if (targetProperty == null)
             {
