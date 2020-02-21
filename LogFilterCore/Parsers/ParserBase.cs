@@ -49,7 +49,8 @@ namespace LogFilterCore.Parsers
 
         public virtual IEnumerable<string> ToLines(IEnumerable<LogEntry> logEntries)
         {
-            foreach (var logEntry in logEntries.OrderBy(x => x.Timestamp))
+            // NOTE: Why would one need ordering here?
+            foreach (var logEntry in logEntries)
             {
                 var formattedLogEntry = FormatLogEntry(logEntry);
                 var stringsPerLine = formattedLogEntry.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
