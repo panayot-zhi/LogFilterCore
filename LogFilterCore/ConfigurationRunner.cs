@@ -240,7 +240,7 @@ namespace LogFilterCore
             // end current summary
             parser.EndSummary();
 
-            // write summary, current summary
+            // write current summary
             var currentSummaryOutputPath = FileProcessor.GetCurrentSummaryFilePath(filePath, cfg.InputFolder, cfg.OutputFolder);
             if (FileProcessor.WriteFile(currentSummaryOutputPath, currentSummary.ToJson(), cfg.OverwriteFiles))
             {
@@ -248,7 +248,7 @@ namespace LogFilterCore
                 runSummary.FilesWritten++;
             }
 
-            AggregateRunSummaryCounters(currentSummary.Filters);
+            AggregateRunSummaryCounters(currentSummary);
 
             ReportProgress("Done.");
         }
@@ -426,18 +426,29 @@ namespace LogFilterCore
             RunSummary = new Summary(datetimeFormat);
             RunSummary.BeginProcessTimestamp = DateTime.Now;
 
-            // make a copy of the filters and anul current counters
-            var filtersCopy = Current.Filters.Clone();
-            filtersCopy.ForEach((x) => { x.Count = 0; });
+            // annul any counters and entries
+            var filters = Current.Filters;
+            filters.ForEach((x) =>
+            {
+                x.Count = 0;
+                x.Entries =
+                    x.Type == FilterType.WriteToFile ||
+                    x.Type == FilterType.IncludeAndWriteToFile
+                        ? new List<LogEntry>()
+                        : null;
+            });
+
+            // make a copy of the filters
+            var filtersCopy = filters.Clone();
             RunSummary.Filters = filtersCopy.ToArray();            
         }
 
-        private void AggregateRunSummaryCounters(IEnumerable<Filter> filters)
+        private void AggregateRunSummaryCounters(Summary currentSummary)
         {
-            foreach (var filter in filters)
+            foreach (var summaryFilter in currentSummary.Filters)
             {
-                // TODO: This relies on filter naming to match the one in the summary, which is not guaranteed
-                RunSummary.Filters.Single(x => x.Name == filter.Name).Count += filter.Count;
+                // TODO: Ensure that there won't be two filters with the same name
+                RunSummary.Filters.Single(x => x.Name == summaryFilter.Name).Count += summaryFilter.Count;
             }
         }
 
