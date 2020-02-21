@@ -1,7 +1,7 @@
-﻿using System;
+﻿using LogFilterCore.Models;
+using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
-using LogFilterCore.Models;
 
 namespace LogFilterCore.Parsers
 {
@@ -15,7 +15,7 @@ namespace LogFilterCore.Parsers
         public readonly string IdentityPattern = @"(?<identity>\w+)";
         public readonly string MethodPattern = @"(?<method>(\w+))";
         public readonly string Method2Pattern = @"<(?<method>\w+)>(\w|_|\d)+";
-        public readonly string MessagePattern = @"(?<message>.*)";        
+        public readonly string MessagePattern = @"(?<message>.*)";
 
         public SUOSParser(Configuration cfg) : base(cfg)
         {
@@ -39,9 +39,9 @@ namespace LogFilterCore.Parsers
 
                 // NOTE: this will never be anything different than empty string
                 // because the SUOS application does not have identity
-                //Identity = result.Groups["identity"].Value, 
+                //Identity = result.Groups["identity"].Value,
 
-                Logger = result.Groups["logger"].Value,                
+                Logger = result.Groups["logger"].Value,
                 Method = result.Groups["method"].Value,
                 Message = result.Groups["message"].Value
             };

@@ -1,16 +1,15 @@
-﻿using System;
+﻿using LogFilterCore.Models;
+using LogFilterCore.Utility;
+using LogFilterCore.Utility.Tracing;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using LogFilterCore.Models;
-using LogFilterCore.Utility;
-using LogFilterCore.Utility.Tracing;
 
 namespace LogFilterCore.Parsers
 {
     public abstract class ParserBase
-    {                
-
+    {
         public virtual string DateFormat { get; } = "yyyy-MM-dd";
 
         public virtual string TimeFormat { get; } = "HH:mm:ss,fff";
@@ -28,7 +27,7 @@ namespace LogFilterCore.Parsers
         public static int NonStandardLinesThreshold = 100;
 
         public List<string> NonStandardLines { get; } = new List<string>(NonStandardLinesThreshold);
-        
+
         protected ParserBase(Configuration cfg)
         {
             Configuration = cfg;
@@ -159,17 +158,17 @@ namespace LogFilterCore.Parsers
                     if (!cfg.SplitByThreads.Contains(currentEntry.Thread))
                     {
                         continue;
-                    }                    
+                    }
                 }
 
                 // if users are specified with concrete values, filter entries with other users
                 if (cfg.SplitByIdentities != null && cfg.SplitByIdentities.Length > 0)
                 {
                     // NOTE: If need be add SplitByUsernames which should point to filtering of WIndowsIdentity entries
-                    if (!cfg.SplitByIdentities.Contains(currentEntry.Identity) /*|| !cfg.SplitByUsers.Contains(currentEntry.Username)*/) 
+                    if (!cfg.SplitByIdentities.Contains(currentEntry.Identity) /*|| !cfg.SplitByUsers.Contains(currentEntry.Username)*/)
                     {
                         continue;
-                    }                    
+                    }
                 }
 
                 // NOTE: begin filter processing
@@ -187,7 +186,7 @@ namespace LogFilterCore.Parsers
                     filter.Count++;
                     if (filter.Type == FilterType.Exclude)
                     {
-                        // this entry should not be 
+                        // this entry should not be
                         // added to the result set
                         break;
                     }
@@ -213,7 +212,7 @@ namespace LogFilterCore.Parsers
                         AddLogEntry(filter.Entries, currentEntry, logEntries, filter.Context, index);
                         break;
                     }
-                }                
+                }
             }
 
             reportProgress?.Invoke(100);
@@ -298,14 +297,14 @@ namespace LogFilterCore.Parsers
             Summary = new Summary(DateTimeFormat);
 
             // Configuration.Filters
-            // annul accumulated counters            
+            // annul accumulated counters
             // initialize entries list if neccessary
             var filters = Configuration.Filters;
             filters.ForEach(x =>
             {
                 x.Count = 0;
-                x.Entries = 
-                    x.Type == FilterType.WriteToFile || 
+                x.Entries =
+                    x.Type == FilterType.WriteToFile ||
                     x.Type == FilterType.IncludeAndWriteToFile
                     ? new List<LogEntry>()
                     : null;
@@ -319,10 +318,10 @@ namespace LogFilterCore.Parsers
         public virtual void EndSummary()
         {
             // make a copy of the filters and assign to summary
-            var filters = Configuration.Filters;           
+            var filters = Configuration.Filters;
             var filtersCopy = filters.Clone();
             Summary.Filters = filtersCopy.ToArray();
-            Summary.EndProcessTimestamp = DateTime.Now;            
+            Summary.EndProcessTimestamp = DateTime.Now;
         }
     }
 }

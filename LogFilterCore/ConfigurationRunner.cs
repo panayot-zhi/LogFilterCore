@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using LogFilterCore.Models;
+﻿using LogFilterCore.Models;
 using LogFilterCore.Parsers;
 using LogFilterCore.Utility;
 using LogFilterCore.Utility.Tracing;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace LogFilterCore
 {
@@ -13,7 +13,7 @@ namespace LogFilterCore
     {
         private Summary RunSummary { get; set; }
 
-        private Configuration Current { get; set; }        
+        private Configuration Current { get; set; }
 
         private readonly Action<string, int?> _reportProgress;
 
@@ -23,7 +23,7 @@ namespace LogFilterCore
         }
 
         public void Run(string configurationFilePath)
-        {            
+        {
             try
             {
                 Current = FileProcessor.LoadConfiguration(configurationFilePath);
@@ -32,7 +32,7 @@ namespace LogFilterCore
             {
                 throw new ConfigurationException($"Could not resolve current configuration from file path: {configurationFilePath}", ex);
             }
-            
+
             Run();
         }
 
@@ -75,7 +75,7 @@ namespace LogFilterCore
 
             cfg.Parser = InstantiateParser(cfg.ParserName);
 
-            var parser = cfg.Parser;                        
+            var parser = cfg.Parser;
             BeginRunSummary(cfg.Parser.DateTimeFormat);
             var runSummary = RunSummary;
 
@@ -86,10 +86,10 @@ namespace LogFilterCore
             {
                 ReportProgress("No log files found in input folder or none passed pre-filtering.", 100);
                 return;
-            }                
-            
+            }
+
             // NOTE: files are ordered here by LastWriteTime
-            // reverse it to preserve the order in the output files            
+            // reverse it to preserve the order in the output files
             foreach (var fileInfo in inputFiles.Reverse())
             {
                 try
@@ -97,7 +97,7 @@ namespace LogFilterCore
                     Run(fileInfo);
                 }
                 catch (ParserException)
-                {                    
+                {
                     if (parser.NonStandardLines.Any())
                     {
                         // write non-standard entries to tunSummary
@@ -120,10 +120,10 @@ namespace LogFilterCore
 
         protected virtual void Run(FileInfo fileInfo)
         {
-            var cfg = Current;            
+            var cfg = Current;
             var parser = cfg.Parser;
             var filters = cfg.Filters;
-            var runSummary = RunSummary;            
+            var runSummary = RunSummary;
 
             var filePath = fileInfo.FullName;
             var currentSummary = parser.BeginSummary();
@@ -183,7 +183,7 @@ namespace LogFilterCore
             {
                 Split(filePath, filteredEntries, currentSummary);
 
-                // write filtered file                        
+                // write filtered file
                 var filteredLines = parser.ToLines(filteredEntries).ToArray();
 
                 var filteredEntriesOutputPath = FileProcessor.GetOutputFilePath(filePath, cfg.InputFolder, cfg.OutputFolder, "filtered");
@@ -288,7 +288,7 @@ namespace LogFilterCore
             {
                 // whether or not we should write file for each identity
                 var splitByAllIdentities = cfg.SplitByIdentities.Length == 0;
-                                    
+
                 var groupsByKey = filteredEntries.GroupBy(entry => entry.Identity);
                 foreach (var groupedEntries in groupsByKey)
                 {
@@ -338,7 +338,7 @@ namespace LogFilterCore
         protected FileInfo[] GatherInputFiles()
         {
             var cfg = Current;
-            var parser = cfg.Parser;            
+            var parser = cfg.Parser;
 
             ReportProgress("Gathering input files...");
 
@@ -356,10 +356,10 @@ namespace LogFilterCore
             IEnumerable<FileInfo> inputFiles;
 
             if (!string.IsNullOrEmpty(cfg.Reparse))
-            {                
+            {
                 ReportProgress($"Gathering previously parsed files with the prefix '{cfg.Reparse}'.");
 
-                // if we are reparsing, gather the files with the Reparse prefix only                
+                // if we are reparsing, gather the files with the Reparse prefix only
                 inputFiles = FileProcessor.GetPrefixedLogsFromDirectory(cfg.InputFolder, cfg.Reparse)
                     .Select(x => new FileInfo(x))
                     .OrderByDescending(x => x.LastWriteTime);
@@ -394,8 +394,8 @@ namespace LogFilterCore
             ReportProgress($"Overwriting of files is '{cfg.OverwriteFiles}'.");
 
             if (!cfg.OverwriteFiles)
-            {                
-                inputFiles = inputFiles.Where(x => !FileProcessor.HasBeenProcessed(x, cfg.InputFolder, cfg.OutputFolder, cfg.Reparse));                
+            {
+                inputFiles = inputFiles.Where(x => !FileProcessor.HasBeenProcessed(x, cfg.InputFolder, cfg.OutputFolder, cfg.Reparse));
             }
 
             var inputFilesArray = inputFiles.ToArray();
@@ -409,7 +409,7 @@ namespace LogFilterCore
 
             if (type == null)
             {
-                type = Type.GetType($"LogFilterCore.Parsers.{parserName}", throwOnError: true);                
+                type = Type.GetType($"LogFilterCore.Parsers.{parserName}", throwOnError: true);
             }
 
             object[] parameters = { Current };
@@ -440,7 +440,7 @@ namespace LogFilterCore
 
             // make a copy of the filters
             var filtersCopy = filters.Clone();
-            RunSummary.Filters = filtersCopy.ToArray();            
+            RunSummary.Filters = filtersCopy.ToArray();
         }
 
         private void AggregateRunSummaryCounters(Summary currentSummary)
@@ -455,7 +455,7 @@ namespace LogFilterCore
         private void EndRunSummary()
         {
             var cfg = Current;
-            var summary = RunSummary;                        
+            var summary = RunSummary;
 
             summary.EndProcessTimestamp = DateTime.Now;
 
@@ -468,6 +468,6 @@ namespace LogFilterCore
         protected void ReportProgress(string message, int? progress = null)
         {
             _reportProgress?.Invoke(message, progress);
-        }               
+        }
     }
 }

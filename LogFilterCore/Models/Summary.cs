@@ -1,8 +1,8 @@
 ﻿using LogFilterCore.Utility;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 using System;
-using Newtonsoft.Json.Converters;
 
 namespace LogFilterCore.Models
 {
@@ -46,7 +46,7 @@ namespace LogFilterCore.Models
                 Converters = new JsonConverter[]
                 {
                     new StringEnumConverter(),
-                    new ParserDateTimeConverter(this.DateTimeFormat),                    
+                    new ParserDateTimeConverter(this.DateTimeFormat),
                 },
                 NullValueHandling = NullValueHandling.Ignore,
                 Formatting = Formatting.Indented
