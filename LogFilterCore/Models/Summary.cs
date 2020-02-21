@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
+using Newtonsoft.Json.Converters;
 
 namespace LogFilterCore.Models
 {
@@ -42,7 +43,11 @@ namespace LogFilterCore.Models
             var settings = new JsonSerializerSettings()
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
-                Converters = new JsonConverter[] { new ParserDateTimeConverter(this.DateTimeFormat) },
+                Converters = new JsonConverter[]
+                {
+                    new StringEnumConverter(),
+                    new ParserDateTimeConverter(this.DateTimeFormat),                    
+                },
                 NullValueHandling = NullValueHandling.Ignore,
                 Formatting = Formatting.Indented
             };
