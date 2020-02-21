@@ -116,7 +116,10 @@ namespace LogFilterCore.Parsers
                 if (logEntriesProcessed % 10 == 0)
                 {
                     var progress = logEntriesProcessed * 100 / logEntriesCount;
-                    reportProgress?.Invoke(progress);
+                    if (progress != 100)
+                    {
+                        reportProgress?.Invoke(progress);
+                    }
                 }
 
                 if (currentEntry.InResultSet)
