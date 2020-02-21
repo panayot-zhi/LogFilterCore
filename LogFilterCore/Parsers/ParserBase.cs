@@ -47,11 +47,16 @@ namespace LogFilterCore.Parsers
             }
         }
 
-        public virtual IEnumerable<string> ToString(IEnumerable<LogEntry> logEntries)
+        public virtual IEnumerable<string> ToLines(IEnumerable<LogEntry> logEntries)
         {
             foreach (var logEntry in logEntries.OrderBy(x => x.Timestamp))
             {
-                yield return FormatLogEntry(logEntry);
+                var formattedLogEntry = FormatLogEntry(logEntry);
+                var stringsPerLine = formattedLogEntry.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+                foreach (var s in stringsPerLine)
+                {
+                    yield return s;
+                }
             }
         }
 
