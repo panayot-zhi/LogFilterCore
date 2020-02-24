@@ -27,12 +27,12 @@ namespace LogFilterCore.Models
         public string OutputFolder { get; set; }
 
         /// <summary>
-        /// Specifies tghe level of output the program provides during processing.
+        /// Specifies the level of output the program provides during processing.
         /// </summary>
         public VerboseMode VerboseMode { get; set; }
 
         /// <summary>
-        /// Instructs the parser to take the last n number of file sorted by LastWriteTime.
+        /// Instructs the parser to take the last n number of files sorted by LastWriteTime.
         /// </summary>
         public ushort? TakeLastFiles { get; set; }
 
