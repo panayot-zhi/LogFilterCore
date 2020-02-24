@@ -73,15 +73,15 @@ namespace LogFilterCore.Models
         public string InputFile { get; set; }
 
         /// <summary>
+        /// The output folder where the directory structure with the result sets will be created.
+        /// </summary>
+        public string OutputFolder { get; set; }
+
+        /// <summary>
         /// The input log folder from which to take all the log files.
         /// Assigning this will keep the directory structure when outputting, substituing input files with folders.
         /// </summary>
         public string InputFolder { get; set; }
-
-        /// <summary>
-        /// The output folder where the directory structure with the result sets will be created.
-        /// </summary>
-        public string OutputFolder { get; set; }
 
         /// <summary>
         /// Specifies the level of output the program provides during processing.
