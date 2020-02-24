@@ -17,7 +17,7 @@ namespace LogFilterCore.Models
 
         /// <summary>
         /// The input log folder from which to take all the log files.
-        /// Assigning this will keep the directory structure when outputting substituing input files with folders.
+        /// Assigning this will keep the directory structure when outputting, substituing input files with folders.
         /// </summary>
         public string InputFolder { get; set; }
 
@@ -54,12 +54,12 @@ namespace LogFilterCore.Models
         public string Reparse { get; set; }
 
         /// <summary>
-        /// Begin date for files prefiltering.
+        /// Begin date for files pre-filtering.
         /// </summary>
         public DateTime? BeginDateTime { get; set; }
 
         /// <summary>
-        /// End date for files prefiltering.
+        /// End date for files pre-filtering.
         /// </summary>
         public DateTime? EndDateTime { get; set; }
 
