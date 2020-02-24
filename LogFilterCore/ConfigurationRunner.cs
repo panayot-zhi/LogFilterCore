@@ -131,7 +131,7 @@ namespace LogFilterCore
 
             void ProgressCallback(int percent)
             {
-                ReportProgress(percent == 100 ? ("Done!       " + Environment.NewLine) : "Processing...", percent);
+                ReportProgress(percent == 100 ? "Done!        " : "Processing...", percent);
             }
 
             var logLines = FileProcessor.ReadLogLines(filePath, ProgressCallback, out var linesRead, parser.Expression);
