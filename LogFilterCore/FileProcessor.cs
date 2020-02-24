@@ -24,6 +24,11 @@ namespace LogFilterCore
 
         private static string GetPrefixFormat(string prefix)
         {
+            if (string.IsNullOrEmpty(prefix))
+            {
+                return string.Empty;
+            }
+
             //prefix = prefix.ToLowerInvariant();
             if (!prefix.StartsWith("["))
             {

@@ -67,9 +67,9 @@ namespace LogFilterCore
             {
                 throw new ConfigurationException("No filters provided, please provide at least one filter.");
             }
-            
-            cfg.Parser = InstantiateParser(cfg.ParserName);
+
             Current = cfg;
+            Current.Parser = InstantiateParser(cfg.ParserName);            
             Run();
         }
 
@@ -129,10 +129,6 @@ namespace LogFilterCore
             var filePath = logFileInput.FullName;
             var currentSummary = parser.BeginSummary();
 
-            var currentOutputPath = FileProcessor.GetOutputFilePath(filePath, cfg.InputFolder, cfg.OutputFolder, null);
-            var currentDirectoryOutputPath = FileProcessor.GetFileDirectory(currentOutputPath);
-            currentSummary.CopyConfiguration(cfg, filePath, currentDirectoryOutputPath);
-
             ReportProgress($"Reading file '{filePath}'...");
 
             void ProgressCallback(int percent)
@@ -148,6 +144,10 @@ namespace LogFilterCore
                 // with a one without a prefix, and prefix it accordingly during this parser run
                 filePath = FileProcessor.ExtractFileName(filePath, cfg.Reparse);
             }
+
+            var currentOutputPath = FileProcessor.GetOutputFilePath(filePath, cfg.InputFolder, cfg.OutputFolder, cfg.Reparse);
+            var currentDirectoryOutputPath = FileProcessor.GetFileDirectory(currentOutputPath);
+            currentSummary.CopyConfiguration(cfg, filePath, currentDirectoryOutputPath);
 
             runSummary.FilesRead++;
             currentSummary.FilesRead++;
@@ -256,7 +256,7 @@ namespace LogFilterCore
 
             AggregateRunSummaryCounters(currentSummary);
 
-            ReportProgress("Done.");
+            ReportProgress("Done!");
         }
 
         protected void Split(string filePath, LogEntry[] filteredEntries, Summary currentSummary)
