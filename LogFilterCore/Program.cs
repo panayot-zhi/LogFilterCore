@@ -1,8 +1,5 @@
 ﻿using System;
-using System.IO;
-using System.Text.RegularExpressions;
 using System.Threading;
-using LogFilterCore.Models;
 
 namespace LogFilterCore
 {
@@ -36,7 +33,9 @@ namespace LogFilterCore
             {
                 if (percent.HasValue)
                 {
-                    Console.Write($"\r{percent}% {message}");
+                    Console.Write(percent.Value == 100
+                        ? $"\r{percent}% {message}{Environment.NewLine}"
+                        : $"\r{percent}% {message}");
                 }
                 else
                 {
