@@ -24,29 +24,28 @@ namespace LogFilterCore
 
         public void Run(string configurationFilePath)
         {
+            Configuration cfg;
+
             try
             {
-                Current = FileProcessor.LoadConfiguration(configurationFilePath);
+                cfg = FileProcessor.LoadConfiguration(configurationFilePath);                
             }
             catch (Exception ex)
             {
                 throw new ConfigurationException($"Could not resolve current configuration from file path: {configurationFilePath}", ex);
             }
 
-            Run();
+            Run(cfg);
         }
 
         public void Run(Configuration cfg)
-        {
-            Current = cfg;
-            Run();
-        }
-
-        protected virtual void Run()
-        {
-            var cfg = Current;
-
+        {            
             // TODO: perform configuration checks!
+
+            if (string.IsNullOrWhiteSpace(cfg.InputFolder) && string.IsNullOrEmpty(cfg.InputFile))
+            {
+                throw new ConfigurationException("No input, please specify either input file or folder.");
+            }
 
             if (string.IsNullOrEmpty(cfg.OutputFolder))
             {
@@ -62,19 +61,21 @@ namespace LogFilterCore
 
                     cfg.OutputFolder = outputPath;
                 }
-                else
-                {
-                    throw new ConfigurationException($"No input, please specify either input file or folder.");
-                }
             }
 
             if (cfg.Filters == null || !cfg.Filters.Any())
             {
-                throw new ConfigurationException($"No filters provided, please provide at least one filter.");
+                throw new ConfigurationException("No filters provided, please provide at least one filter.");
             }
-
+            
             cfg.Parser = InstantiateParser(cfg.ParserName);
+            Current = cfg;
+            Run();
+        }
 
+        protected virtual void Run()
+        {
+            var cfg = Current;            
             var parser = cfg.Parser;
             BeginRunSummary(cfg.Parser.DateTimeFormat);
             var runSummary = RunSummary;
@@ -118,15 +119,20 @@ namespace LogFilterCore
             EndRunSummary();
         }
 
-        protected virtual void Run(FileInfo fileInfo)
+        protected virtual void Run(FileInfo logFileInput)
         {
             var cfg = Current;
             var parser = cfg.Parser;
             var filters = cfg.Filters;
             var runSummary = RunSummary;
 
-            var filePath = fileInfo.FullName;
+            var filePath = logFileInput.FullName;
             var currentSummary = parser.BeginSummary();
+
+            var currentOutputPath = FileProcessor.GetOutputFilePath(filePath, cfg.InputFolder, cfg.OutputFolder, null);
+            var currentDirectoryOutputPath = FileProcessor.GetFileDirectory(currentOutputPath);
+            currentSummary.CopyConfiguration(cfg, filePath, currentDirectoryOutputPath);
+
             ReportProgress($"Reading file '{filePath}'...");
 
             void ProgressCallback(int percent)
@@ -425,6 +431,7 @@ namespace LogFilterCore
         {
             RunSummary = new Summary(datetimeFormat);
             RunSummary.BeginProcessTimestamp = DateTime.Now;
+            RunSummary.CopyConfiguration(Current, Current.InputFile, Current.OutputFolder);
 
             // annul any counters and entries
             var filters = Current.Filters;
