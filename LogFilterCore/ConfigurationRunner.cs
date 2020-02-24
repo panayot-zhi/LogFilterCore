@@ -241,7 +241,7 @@ namespace LogFilterCore
             parser.EndSummary();
 
             // write current summary
-            var currentSummaryOutputPath = FileProcessor.GetCurrentSummaryFilePath(filePath, cfg.InputFolder, cfg.OutputFolder);
+            var currentSummaryOutputPath = FileProcessor.GetSummaryFilePath(filePath, cfg.InputFolder, cfg.OutputFolder);
             if (FileProcessor.WriteFile(currentSummaryOutputPath, currentSummary.ToJson(), cfg.OverwriteFiles))
             {
                 FileProcessor.SetReadonly(currentSummaryOutputPath);

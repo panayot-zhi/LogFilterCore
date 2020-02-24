@@ -1,14 +1,14 @@
-﻿using System;
+﻿using LogFilterCore.Models;
+using LogFilterCore.Utility.Tracing;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using LogFilterCore.Models;
-using LogFilterCore.Utility.Tracing;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Serialization;
 
 namespace LogFilterCore
 {
@@ -32,7 +32,7 @@ namespace LogFilterCore
 
             if (!prefix.EndsWith("-"))
             {
-                prefix = prefix.ToLowerInvariant() + "-";                
+                prefix = prefix.ToLowerInvariant() + "-";
             }
 
             if (!prefix.EndsWith("]-"))
@@ -53,9 +53,7 @@ namespace LogFilterCore
             return File.Exists(path);
         }
 
-
-
-        public static string GetCurrentSummaryFilePath(string filePath, string inputFolder, string outputFolder)
+        public static string GetSummaryFilePath(string filePath, string inputFolder, string outputFolder)
         {
             var fileName = Path.GetFileNameWithoutExtension(filePath);
             var fullFileName = Path.GetFileName(filePath);
@@ -85,7 +83,6 @@ namespace LogFilterCore
             return Path.Combine(outputFolder, $"[{DateTime.Now:yyyy-MM-dd}]-summary_{DateTime.Now:HHmmss}.json");
         }
 
-
         public static Configuration LoadConfiguration(string path)
         {
             var json = File.ReadAllText(path);
@@ -100,10 +97,11 @@ namespace LogFilterCore
 
         public static void SetReadonly(string path)
         {
-            var attr = File.GetAttributes(path);    // get all            
+            var attr = File.GetAttributes(path);    // get all
             attr = attr | FileAttributes.ReadOnly;  // add one
             File.SetAttributes(path, attr);         // overwrite
         }
+
         public static string[] GetLogsFromDirectory(string dirPath)
         {
             if (!Directory.Exists(dirPath))
@@ -146,7 +144,7 @@ namespace LogFilterCore
         /// <param name="files">Array of full file paths.</param>
         /// <param name="dateFormat">The datetime format of the parser.</param>
         /// <param name="beginFilter">Filter logs by filename from this date on.</param>
-        /// <param name="endFilter">Filter logs by filename until this day.</param>        
+        /// <param name="endFilter">Filter logs by filename until this day.</param>
         /// <returns></returns>
         public static IEnumerable<string> FilterFilesByDateFilter(IEnumerable<string> files, string dateFormat, DateTime? beginFilter, DateTime? endFilter, string prefix = null)
         {
@@ -197,7 +195,7 @@ namespace LogFilterCore
             {
                 var filename = Path.GetFileNameWithoutExtension(path);
                 if (prefix != null)
-                {                    
+                {
                     // ReSharper disable once PossibleNullReferenceException
                     filename = filename.Replace(GetPrefixFormat(prefix), string.Empty);
                 }
@@ -221,7 +219,7 @@ namespace LogFilterCore
         /// <param name="inputFile">File information for the current file.</param>
         /// <param name="inputFolder">Directory of origin.</param>
         /// <param name="outputFolder">Destination directory.</param>
-        /// <param name="originals">Use files with [original] prefix from the filename</param>
+        /// <param name="prefix">Use files with [prefix] from the filename.</param>
         /// <returns>True if a directory is found, otherwise false.</returns>
         public static bool HasBeenProcessed(FileInfo inputFile, string inputFolder, string outputFolder, string prefix = null)
         {
@@ -349,7 +347,7 @@ namespace LogFilterCore
         public static bool WriteFile(string filePath, IEnumerable<string> lines, bool overwrite = false)
         {
             if (!overwrite && File.Exists(filePath))
-            {                
+            {
                 return false;
             }
 
