@@ -67,6 +67,11 @@ namespace LogFilterCore.Models
         public DateTime EndProcessTimestamp { get; set; }
 
         /// <summary>
+        /// At the end of the summary calculates the total running time of this run.
+        /// </summary>
+        public TimeSpan Elapsed { get; set; }
+
+        /// <summary>
         /// The input log file to be filtered.
         /// Assigning this will set the output folder in the directory where the file resides.
         /// </summary>
