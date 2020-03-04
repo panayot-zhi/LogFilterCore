@@ -101,7 +101,7 @@ namespace LogFilterCore
                 {
                     if (parser.NonStandardLines.Any())
                     {
-                        // write non-standard entries to tunSummary
+                        // write non-standard entries to runSummary
                         runSummary.NonStandardEntries += parser.NonStandardLines.Count;
 
                         var filePath = fileInfo.FullName;
@@ -465,6 +465,7 @@ namespace LogFilterCore
             var summary = RunSummary;
 
             summary.EndProcessTimestamp = DateTime.Now;
+            summary.Elapsed = summary.EndProcessTimestamp - summary.BeginProcessTimestamp;
 
             // write run summary, set readonly
             var summaryOutputFilePath = FileProcessor.GetRunSummaryFilePath(cfg.OutputFolder);

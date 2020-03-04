@@ -320,8 +320,11 @@ namespace LogFilterCore.Parsers
             // make a copy of the filters and assign to summary
             var filters = Configuration.Filters;
             var filtersCopy = filters.Clone();
-            Summary.Filters = filtersCopy.ToArray();
-            Summary.EndProcessTimestamp = DateTime.Now;
+            var summary = Summary;
+
+            summary.Filters = filtersCopy.ToArray();
+            summary.EndProcessTimestamp = DateTime.Now;
+            summary.Elapsed = summary.EndProcessTimestamp - summary.BeginProcessTimestamp;
         }
     }
 }
