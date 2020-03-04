@@ -361,6 +361,27 @@ namespace LogFilterCore
             return true;
         }
 
+        public static bool WriteOriginalFile(string sourcePath, string destinationPath, IEnumerable<string> lines, bool overwrite)
+        {
+            if (!overwrite && File.Exists(destinationPath))
+            {
+                return false;
+            }
+
+            var origin = new FileInfo(sourcePath);
+
+            File.WriteAllLines(destinationPath, lines);            
+
+            // overwrite file information
+            var destination = new FileInfo(destinationPath);
+            destination.CreationTime = origin.CreationTime;
+            destination.LastWriteTime = origin.LastWriteTime;
+            destination.LastAccessTime = DateTime.Now;
+            destination.IsReadOnly = true;
+
+            return true;
+        }
+
         public static bool WriteFile(string filePath, string content, bool overwrite = false)
         {
             if (!overwrite && File.Exists(filePath))

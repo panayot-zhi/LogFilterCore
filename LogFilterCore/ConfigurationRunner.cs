@@ -236,7 +236,7 @@ namespace LogFilterCore
 
                 // write the original file to output folder
                 var originalOutputFilePath = FileProcessor.GetOutputFilePath(filePath, cfg.InputFolder, cfg.OutputFolder, "original");
-                if (FileProcessor.WriteFile(originalOutputFilePath, logLines, cfg.OverwriteFiles))
+                if (FileProcessor.WriteOriginalFile(sourcePath: filePath, destinationPath: originalOutputFilePath, lines: logLines, overwrite: cfg.OverwriteFiles))
                 {
                     runSummary.FilesWritten++;
                     currentSummary.FilesWritten++;
