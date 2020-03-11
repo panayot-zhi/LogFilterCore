@@ -16,7 +16,7 @@ namespace LogFilterCore.Parsers
 
         public string DateTimeFormat => $"{DateFormat} {TimeFormat}";
 
-        public virtual string FileFormat { get; } = "yyyy-MM-dd";
+        public virtual string DateFileNameFormat { get; } = "yyyy-MM-dd";
 
         public Regex Expression { get; protected set; }
 

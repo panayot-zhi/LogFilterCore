@@ -385,7 +385,7 @@ namespace LogFilterCore
                 ReportProgress($"Prefiltering by file name based on the begin ({cfg.BeginDateTime}) and end ({cfg.EndDateTime}) configuration values.");
 
                 // apply prefiltering of files if there is a value in any of those two filters
-                inputFiles = FileProcessor.FilterFilesByDateFilter(inputFiles, parser.FileFormat,
+                inputFiles = FileProcessor.FilterFilesByDateFilter(inputFiles, parser.DateFileNameFormat,
                     cfg.BeginDateTime, cfg.EndDateTime, cfg.Reparse);
             }
 
