@@ -28,7 +28,7 @@ namespace LogFilterCore.Models
         public FilterType Type { get; set; } = FilterType.Include; // include entries by default
 
         /// <summary>
-        /// Incremented whenever this occurance's
+        /// Incremented whenever this occurrence's
         /// filter is matched upon a log entry.
         /// </summary>
         public ulong Count { get; set; } = 0;
@@ -40,18 +40,6 @@ namespace LogFilterCore.Models
         public int Context { get; set; } = 0; // no context by default
 
         /// <summary>
-        /// Specifies if log entries satisfying this filter
-        /// should be separated and written into a separate file.
-        /// </summary>
-        //public bool WriteToFile { get; set; } = false; // writing to file is opt-in
-
-        /// <summary>
-        /// Specifies if the parsing should continue after this entry is matched.
-        /// Useful when filtering known log entries into another file.
-        /// </summary>
-        //public bool ShouldContinue { get; set; }  // TODO: Resolve remove
-
-        /// <summary>
         /// For which property of the log entry should this filter be applied on.
         /// If this property is null the value of the filter will be applied on the original line.
         /// </summary>
@@ -60,7 +48,7 @@ namespace LogFilterCore.Models
         /// <summary>
         /// The filter value to be matched against the value of the log entry property.
         /// </summary>
-        public Regex Value { get; set; }        // TODO: Use a FilterValue class here
+        public Regex Value { get; set; }
 
         [JsonIgnore]
         [NonSerialized]
