@@ -51,6 +51,7 @@
     <Compile Include="Models\LogEntry.cs" />
     <Compile Include="Models\Summary.cs" />
     <Compile Include="Parsers\ParserBase.cs" />
+    <Compile Include="Parsers\SmartUCF.cs" />
     <Compile Include="Parsers\SUOSParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
