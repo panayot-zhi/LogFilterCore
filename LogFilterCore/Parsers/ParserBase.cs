@@ -128,7 +128,7 @@ namespace LogFilterCore.Parsers
                     continue;
                 }
 
-                // NOTE: configuration filters preceed other filtering
+                // NOTE: configuration filters precede other filtering
 
                 // filter logs by begin date less than the one specified by the filter value
                 if (cfg.BeginDateTime.HasValue && (currentEntry.Date < cfg.BeginDateTime.Value || currentEntry.UtcDate < cfg.BeginDateTime.Value))

@@ -310,7 +310,7 @@ namespace LogFilterCore
                     }
                     else
                     {
-                        // message line has been acknowleded
+                        // message line has been acknowledged
 
                         if (accumulator == null)
                         {
@@ -321,6 +321,7 @@ namespace LogFilterCore
                         // message should be appended to the accumulator
                         accumulator += Environment.NewLine + currentLine;
                     }
+
                 } while (true);
 
                 progressCallback.Invoke(100);
