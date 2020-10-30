@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace LogFilterCore.Parsers
 {
-    public class SUOSParser : ParserBase
+    public class SuosParser : ParserBase
     {
         public readonly string LogLevelPattern = @"(?<level>DEBUG|INFO|WARN|ERROR|FATAL)";
 
@@ -17,7 +17,7 @@ namespace LogFilterCore.Parsers
         public readonly string Method2Pattern = @"<(?<method>\w+)>(\w|_|\d)+";
         public readonly string MessagePattern = @"(?<message>.*)";
 
-        public SUOSParser(Configuration cfg) : base(cfg)
+        public SuosParser(Configuration cfg) : base(cfg)
         {
             Expression = new Regex(
                 $"{LogLevelPattern}\\s+{DateTimePattern}\\s+" +

@@ -60,7 +60,7 @@
     <Compile Include="Models\Summary.cs" />
     <Compile Include="Parsers\ParserBase.cs" />
     <Compile Include="Parsers\SmartUCF.cs" />
-    <Compile Include="Parsers\SUOSParser.cs" />
+    <Compile Include="Parsers\SuosParser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\VerboseMode.cs" />
