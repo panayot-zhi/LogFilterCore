@@ -25,7 +25,7 @@ namespace LogFilterCore
         public void Run(string configurationFilePath)
         {
             Configuration cfg;
-
+                
             try
             {
                 cfg = FileProcessor.LoadConfiguration(configurationFilePath);                
@@ -140,7 +140,7 @@ namespace LogFilterCore
 
             if (!string.IsNullOrEmpty(cfg.Reparse))
             {
-                // if we're reparsing we need to replace the original file name (thhat's with a prefix)
+                // if we're reparsing we need to replace the original file name (that's with a prefix)
                 // with a one without a prefix, and prefix it accordingly during this parser run
                 filePath = FileProcessor.ExtractFileName(filePath, cfg.Reparse);
             }
@@ -382,9 +382,9 @@ namespace LogFilterCore
 
             if (cfg.BeginDateTime.HasValue || cfg.EndDateTime.HasValue)
             {
-                ReportProgress($"Prefiltering by file name based on the begin ({cfg.BeginDateTime}) and end ({cfg.EndDateTime}) configuration values.");
-
-                // apply prefiltering of files if there is a value in any of those two filters
+                ReportProgress($"Pre-filtering by file name based on the begin ({cfg.BeginDateTime}) and end ({cfg.EndDateTime}) configuration values.");
+                
+                // apply pre-filtering of files if there is a value in any of those two filters
                 inputFiles = FileProcessor.FilterFilesByDateFilter(inputFiles, parser.DateFileNameFormat,
                     cfg.BeginDateTime, cfg.EndDateTime, cfg.Reparse);
             }
@@ -405,7 +405,7 @@ namespace LogFilterCore
             }
 
             var inputFilesArray = inputFiles.ToArray();
-            ReportProgress($"Pre-filtering resolved {inputFilesArray.Length} file(s) ready for proccessing.");
+            ReportProgress($"Pre-filtering resolved {inputFilesArray.Length} file(s) ready for processing.");
             return inputFilesArray;
         }
 

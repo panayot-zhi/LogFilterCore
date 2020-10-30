@@ -17,7 +17,7 @@ namespace LogFilterCore.Models
 
         /// <summary>
         /// The input log folder from which to take all the log files.
-        /// Assigning this will keep the directory structure when outputting, substituing input files with folders.
+        /// Assigning this will keep the directory structure when outputting, substituting input files with folders.
         /// </summary>
         public string InputFolder { get; set; }
 
