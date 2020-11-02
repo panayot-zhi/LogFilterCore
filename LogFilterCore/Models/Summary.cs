@@ -175,7 +175,7 @@ namespace LogFilterCore.Models
             this.SplitByThreads = cfg.SplitByThreads;
             this.SplitByIdentities = cfg.SplitByIdentities;
             this.SplitByLogLevels = cfg.SplitByLogLevels;
-            this.Reparse = cfg.Reparse;
+            this.Reparse = cfg.FilePrefix;
 
             this.ParserName = cfg.ParserName;
         }

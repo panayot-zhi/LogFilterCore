@@ -51,7 +51,7 @@ namespace LogFilterCore.Models
         /// no reparsing is done, all log files from the input directory are taken;
         /// if it has value - only files with that specific prefix are taken.
         /// </summary>
-        public string Reparse { get; set; }
+        public string FilePrefix { get; set; }
 
         /// <summary>
         /// Begin date for files pre-filtering.

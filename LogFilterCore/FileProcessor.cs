@@ -150,6 +150,7 @@ namespace LogFilterCore
         /// <param name="dateFormat">The datetime format of the parser.</param>
         /// <param name="beginFilter">Filter logs by filename from this date on.</param>
         /// <param name="endFilter">Filter logs by filename until this day.</param>
+        /// <param name="prefix">The prefix used in front of the file name.</param>
         /// <returns></returns>
         public static IEnumerable<string> FilterFilesByDateFilter(IEnumerable<string> files, string dateFormat, DateTime? beginFilter, DateTime? endFilter, string prefix = null)
         {
@@ -159,7 +160,7 @@ namespace LogFilterCore
                 if (!fileNameAsDate.HasValue)
                 {
                     // if the filename cannot be parsed as date,
-                    // filtering is not posible,
+                    // filtering is not possible,
                     // return the file for further processing...
                     yield return file;
                 }
@@ -283,7 +284,7 @@ namespace LogFilterCore
 
                     if (matcher.IsMatch(currentLine))
                     {
-                        // new log line has been acknowleded
+                        // new log line has been acknowledged
 
                         if (accumulator == null)
                         {

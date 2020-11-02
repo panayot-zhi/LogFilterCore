@@ -138,14 +138,14 @@ namespace LogFilterCore
 
             var logLines = FileProcessor.ReadLogLines(filePath, ProgressCallback, out var linesRead, parser.Expression);
 
-            if (!string.IsNullOrEmpty(cfg.Reparse))
+            if (!string.IsNullOrEmpty(cfg.FilePrefix))
             {
                 // if we're reparsing we need to replace the original file name (that's with a prefix)
                 // with a one without a prefix, and prefix it accordingly during this parser run
-                filePath = FileProcessor.ExtractFileName(filePath, cfg.Reparse);
+                filePath = FileProcessor.ExtractFileName(filePath, cfg.FilePrefix);
             }
 
-            var currentOutputPath = FileProcessor.GetOutputFilePath(filePath, cfg.InputFolder, cfg.OutputFolder, cfg.Reparse);
+            var currentOutputPath = FileProcessor.GetOutputFilePath(filePath, cfg.InputFolder, cfg.OutputFolder, cfg.FilePrefix);
             var currentDirectoryOutputPath = FileProcessor.GetFileDirectory(currentOutputPath);
             currentSummary.CopyConfiguration(cfg, filePath, currentDirectoryOutputPath);
 
@@ -361,12 +361,12 @@ namespace LogFilterCore
 
             IEnumerable<FileInfo> inputFiles;
 
-            if (!string.IsNullOrEmpty(cfg.Reparse))
+            if (!string.IsNullOrEmpty(cfg.FilePrefix))
             {
-                ReportProgress($"Gathering previously parsed files with the prefix '{cfg.Reparse}'.");
+                ReportProgress($"Gathering previously parsed files with the prefix '{cfg.FilePrefix}'.");
 
                 // if we are reparsing, gather the files with the Reparse prefix only
-                inputFiles = FileProcessor.GetPrefixedLogsFromDirectory(cfg.InputFolder, cfg.Reparse)
+                inputFiles = FileProcessor.GetPrefixedLogsFromDirectory(cfg.InputFolder, cfg.FilePrefix)
                     .Select(x => new FileInfo(x))
                     .OrderByDescending(x => x.LastWriteTime);
             }
@@ -386,7 +386,7 @@ namespace LogFilterCore
                 
                 // apply pre-filtering of files if there is a value in any of those two filters
                 inputFiles = FileProcessor.FilterFilesByDateFilter(inputFiles, parser.DateFileNameFormat,
-                    cfg.BeginDateTime, cfg.EndDateTime, cfg.Reparse);
+                    cfg.BeginDateTime, cfg.EndDateTime, cfg.FilePrefix);
             }
 
             if (cfg.TakeLastFiles.HasValue)
@@ -401,7 +401,7 @@ namespace LogFilterCore
 
             if (!cfg.OverwriteFiles)
             {
-                inputFiles = inputFiles.Where(x => !FileProcessor.HasBeenProcessed(x, cfg.InputFolder, cfg.OutputFolder, cfg.Reparse));
+                inputFiles = inputFiles.Where(x => !FileProcessor.HasBeenProcessed(x, cfg.InputFolder, cfg.OutputFolder, cfg.FilePrefix));
             }
 
             var inputFilesArray = inputFiles.ToArray();
