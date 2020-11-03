@@ -15,32 +15,23 @@ namespace LogFilterCore
 
         private Configuration Current { get; set; }
 
-        private readonly Action<string, int?> _reportProgress;
-
-        public ConfigurationRunner(Action<string, int?> reportProgress)
+        public ConfigurationRunner(string configurationFilePath)
         {
-            _reportProgress = reportProgress;
-        }
-
-        public void Run(string configurationFilePath)
-        {
-            Configuration cfg;
-                
             try
             {
-                cfg = FileProcessor.LoadConfiguration(configurationFilePath);                
+                Current = FileProcessor.LoadConfiguration(configurationFilePath);
             }
             catch (Exception ex)
             {
                 throw new ConfigurationException($"Could not resolve current configuration from file path: {configurationFilePath}", ex);
             }
 
-            Run(cfg);
+            Check();
         }
 
-        public void Run(Configuration cfg)
-        {            
-            // TODO: perform configuration checks!
+        private void Check()
+        {
+            var cfg = Current;
 
             if (string.IsNullOrWhiteSpace(cfg.InputFolder) && string.IsNullOrEmpty(cfg.InputFile))
             {
@@ -68,14 +59,17 @@ namespace LogFilterCore
                 throw new ConfigurationException("No filters provided, please provide at least one filter.");
             }
 
-            Current = cfg;
-            Current.Parser = InstantiateParser(cfg.ParserName);            
-            Run();
+            Current.Parser = InstantiateParser(cfg.ParserName);
         }
 
-        protected virtual void Run()
+        public virtual void Run(string inputFile = null)
         {
-            var cfg = Current;            
+            var cfg = Current;
+            if (inputFile != null)
+            {
+                cfg.InputFile = inputFile;
+            }
+
             var parser = cfg.Parser;
             BeginRunSummary(cfg.Parser.DateTimeFormat);
             var runSummary = RunSummary;
@@ -85,7 +79,7 @@ namespace LogFilterCore
 
             if (!inputFiles.Any())
             {
-                ReportProgress("No log files found in input folder or none passed pre-filtering.", 100);
+                InvokeReportProgress("No log files found in input folder or none passed pre-filtering.", 100);
                 return;
             }
 
@@ -129,11 +123,11 @@ namespace LogFilterCore
             var filePath = logFileInput.FullName;
             var currentSummary = parser.BeginSummary();
 
-            ReportProgress($"Reading file '{filePath}'...");
+            InvokeReportProgress($"Reading file '{filePath}'...");
 
             void ProgressCallback(int percent)
             {
-                ReportProgress(percent == 100 ? "Done!        " : "Processing...", percent);
+                InvokeReportProgress(percent == 100 ? "Done!        " : "Processing...", percent);
             }
 
             var logLines = FileProcessor.ReadLogLines(filePath, ProgressCallback, out var linesRead, parser.Expression);
@@ -156,7 +150,7 @@ namespace LogFilterCore
             runSummary.LogsRead += (ulong)logLines.Length;
             currentSummary.LogsRead = (ulong)logLines.Length;
 
-            ReportProgress($"Lines: {linesRead}, Logs: {logLines.Length}, Constructing entries...");
+            InvokeReportProgress($"Lines: {linesRead}, Logs: {logLines.Length}, Constructing entries...");
 
             var logEntries = parser.ToLogEntry(logLines).ToArray();
             runSummary.NonStandardEntries += parser.NonStandardLines.Count;
@@ -176,14 +170,14 @@ namespace LogFilterCore
             runSummary.EntriesConstructed += (ulong)logEntries.Length;
             currentSummary.EntriesConstructed = (ulong)logEntries.Length;
 
-            ReportProgress($"Logs: {logLines.Length}, Constructed: {logEntries.Length}, Filtering file...");
+            InvokeReportProgress($"Logs: {logLines.Length}, Constructed: {logEntries.Length}, Filtering file...");
 
             var filteredEntries = parser.FilterLogEntries(logEntries, ProgressCallback);
 
             runSummary.FilteredEntries += (ulong)filteredEntries.Length;
             currentSummary.FilteredEntries = (ulong)filteredEntries.Length;
 
-            ReportProgress($"Entries: {logEntries.Length}, Filtered: {filteredEntries.Length}, Writing files...");
+            InvokeReportProgress($"Entries: {logEntries.Length}, Filtered: {filteredEntries.Length}, Writing files...");
 
             if (filteredEntries.Any())
             {
@@ -202,12 +196,12 @@ namespace LogFilterCore
                     currentSummary.LinesWritten = (ulong)filteredLines.Length;
                 }
 
-                ReportProgress($"FILTERED: {filteredEntries.Length}");
+                InvokeReportProgress($"FILTERED: {filteredEntries.Length}");
             }
             else
             {
                 // TODO: At level WARN!
-                ReportProgress("No filtered entries resulted after run.");
+                InvokeReportProgress("No filtered entries resulted after run.");
             }
 
             // write entries accumulated in the filters
@@ -232,7 +226,7 @@ namespace LogFilterCore
 
             if (cfg.CopyOriginal)
             {
-                ReportProgress("Writing original file...");
+                InvokeReportProgress("Writing original file...");
 
                 // write the original file to output folder
                 var originalOutputFilePath = FileProcessor.GetOutputFilePath(filePath, cfg.InputFolder, cfg.OutputFolder, "original");
@@ -256,7 +250,7 @@ namespace LogFilterCore
 
             AggregateRunSummaryCounters(currentSummary);
 
-            ReportProgress("Done!");
+            InvokeReportProgress("Done!");
         }
 
         protected void Split(string filePath, LogEntry[] filteredEntries, Summary currentSummary)
@@ -286,7 +280,7 @@ namespace LogFilterCore
                         currentSummary.FilesWritten++;
                     }
 
-                    ReportProgress($"THREAD#{groupedEntries.Key}: {groupedEntries.Count()}");
+                    InvokeReportProgress($"\rTHREAD#{groupedEntries.Key}: {groupedEntries.Count()}");
                 }
             }
 
@@ -311,7 +305,7 @@ namespace LogFilterCore
                         currentSummary.FilesWritten++;
                     }
 
-                    ReportProgress($"IDENTITY#{groupedEntries.Key}: {groupedEntries.Count()}");
+                    InvokeReportProgress($"\rIDENTITY#{groupedEntries.Key}: {groupedEntries.Count()}");
                 }
             }
 
@@ -336,7 +330,7 @@ namespace LogFilterCore
                         currentSummary.FilesWritten++;
                     }
 
-                    ReportProgress($"LEVEL#{groupedEntries.Key}: {groupedEntries.Count()}");
+                    InvokeReportProgress($"\rLEVEL#{groupedEntries.Key}: {groupedEntries.Count()}");
                 }
             }
         }
@@ -346,14 +340,14 @@ namespace LogFilterCore
             var cfg = Current;
             var parser = cfg.Parser;
 
-            ReportProgress("Gathering input files...");
+            InvokeReportProgress("Gathering input files...");
 
             if (!string.IsNullOrEmpty(cfg.InputFile))
             {
                 if (!string.IsNullOrEmpty(cfg.InputFolder))
                 {
                     // TODO: at level WARN!
-                    ReportProgress("Both input file and input folder are set, disregarding the latter.");
+                    InvokeReportProgress("Both input file and input folder are set, disregarding the latter.");
                 }
 
                 return new[] { new FileInfo(cfg.InputFile) };
@@ -363,7 +357,7 @@ namespace LogFilterCore
 
             if (!string.IsNullOrEmpty(cfg.FilePrefix))
             {
-                ReportProgress($"Gathering previously parsed files with the prefix '{cfg.FilePrefix}'.");
+                InvokeReportProgress($"Gathering previously parsed files with the prefix '{cfg.FilePrefix}'.");
 
                 // if we are reparsing, gather the files with the Reparse prefix only
                 inputFiles = FileProcessor.GetPrefixedLogsFromDirectory(cfg.InputFolder, cfg.FilePrefix)
@@ -372,7 +366,7 @@ namespace LogFilterCore
             }
             else
             {
-                ReportProgress("Gathering all log files from input directory.");
+                InvokeReportProgress("Gathering all log files from input directory.");
 
                 // if we're not, gather ALL log files from the directory
                 inputFiles = FileProcessor.GetLogsFromDirectory(cfg.InputFolder)
@@ -382,7 +376,7 @@ namespace LogFilterCore
 
             if (cfg.BeginDateTime.HasValue || cfg.EndDateTime.HasValue)
             {
-                ReportProgress($"Pre-filtering by file name based on the begin ({cfg.BeginDateTime}) and end ({cfg.EndDateTime}) configuration values.");
+                InvokeReportProgress($"Pre-filtering by file name based on the begin ({cfg.BeginDateTime}) and end ({cfg.EndDateTime}) configuration values.");
                 
                 // apply pre-filtering of files if there is a value in any of those two filters
                 inputFiles = FileProcessor.FilterFilesByDateFilter(inputFiles, parser.DateFileNameFormat,
@@ -391,13 +385,13 @@ namespace LogFilterCore
 
             if (cfg.TakeLastFiles.HasValue)
             {
-                ReportProgress($"Taking last {cfg.TakeLastFiles.Value} files.");
+                InvokeReportProgress($"Taking last {cfg.TakeLastFiles.Value} files.");
 
                 // take only so many entries, if this value is specified
                 inputFiles = inputFiles.Take(cfg.TakeLastFiles.Value);
             }
 
-            ReportProgress($"Overwriting of files is '{cfg.OverwriteFiles}'.");
+            InvokeReportProgress($"Overwriting of files is '{cfg.OverwriteFiles}'.");
 
             if (!cfg.OverwriteFiles)
             {
@@ -405,7 +399,7 @@ namespace LogFilterCore
             }
 
             var inputFilesArray = inputFiles.ToArray();
-            ReportProgress($"Pre-filtering resolved {inputFilesArray.Length} file(s) ready for processing.");
+            InvokeReportProgress($"Pre-filtering resolved {inputFilesArray.Length} file(s) ready for processing.");
             return inputFilesArray;
         }
 
@@ -473,9 +467,11 @@ namespace LogFilterCore
             FileProcessor.SetReadonly(summaryOutputFilePath);
         }
 
-        protected void ReportProgress(string message, int? progress = null)
+        public Action<string, int?> ReportProgress;
+
+        protected void InvokeReportProgress(string message, int? progress = null)
         {
-            _reportProgress?.Invoke(message, progress);
+            ReportProgress?.Invoke(message, progress);
         }
     }
 }
