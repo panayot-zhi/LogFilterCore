@@ -139,7 +139,7 @@ namespace LogFilterCore.Parsers
                 // filter logs by end date greater than the specified; this is also an end condition
                 if (cfg.EndDateTime.HasValue && (currentEntry.Date > cfg.EndDateTime.Value || currentEntry.UtcDate > cfg.EndDateTime.Value))
                 {
-                    return filteredEntries.ToArray();
+                    break;
                 }
 
                 // if log levels are specified with concrete values, filter entries at other levels
@@ -188,30 +188,29 @@ namespace LogFilterCore.Parsers
                     {
                         // this entry should not be
                         // added to the result set
-                        break;
                     }
-
-                    if (filter.Type == FilterType.Include)
+                    else if (filter.Type == FilterType.Include)
                     {
                         // add to the filtered entries result set and continue
                         AddLogEntry(filteredEntries, currentEntry, logEntries, filter.Context, index);
-                        break;
                     }
-
-                    if (filter.Type == FilterType.WriteToFile)
+                    else if (filter.Type == FilterType.WriteToFile)
                     {
                         // add to the specific filter entries result set and continue
                         AddLogEntry(filter.Entries, currentEntry, logEntries, filter.Context, index);
-                        break;
                     }
-
-                    if (filter.Type == FilterType.IncludeAndWriteToFile)
+                    else if(filter.Type == FilterType.IncludeAndWriteToFile)
                     {
                         // add to both the specific filter and the filtered result set
                         AddLogEntry(filteredEntries, currentEntry, logEntries, filter.Context, index);
                         AddLogEntry(filter.Entries, currentEntry, logEntries, filter.Context, index);
-                        break;
                     }
+                    else
+                    {
+                        throw new ParserException($"Unknown filter type: {filter.Type}");
+                    }
+
+                    break;
                 }
             }
 

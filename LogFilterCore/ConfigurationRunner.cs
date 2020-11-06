@@ -127,10 +127,12 @@ namespace LogFilterCore
 
             void ProgressCallback(int percent)
             {
-                InvokeReportProgress(percent == 100 ? "Done!        " : "Processing...", percent);
+                InvokeReportProgress("Processing...", percent);
             }
 
             var logLines = FileProcessor.ReadLogLines(filePath, ProgressCallback, out var linesRead, parser.Expression);
+            InvokeReportProgress("Done!        ", 100);
+            InvokeReportProgress(Environment.NewLine);
 
             if (!string.IsNullOrEmpty(cfg.FilePrefix))
             {
@@ -173,6 +175,8 @@ namespace LogFilterCore
             InvokeReportProgress($"Logs: {logLines.Length}, Constructed: {logEntries.Length}, Filtering file...");
 
             var filteredEntries = parser.FilterLogEntries(logEntries, ProgressCallback);
+            InvokeReportProgress("Done!        ", 100);
+            InvokeReportProgress(Environment.NewLine);
 
             runSummary.FilteredEntries += (ulong)filteredEntries.Length;
             currentSummary.FilteredEntries = (ulong)filteredEntries.Length;
@@ -250,7 +254,8 @@ namespace LogFilterCore
 
             AggregateRunSummaryCounters(currentSummary);
 
-            InvokeReportProgress("Done!");
+            // NOTE: A double empty console line intended
+            InvokeReportProgress("Done!" + Environment.NewLine);
         }
 
         protected void Split(string filePath, LogEntry[] filteredEntries, Summary currentSummary)
@@ -280,8 +285,10 @@ namespace LogFilterCore
                         currentSummary.FilesWritten++;
                     }
 
-                    InvokeReportProgress($"\rTHREAD#{groupedEntries.Key}: {groupedEntries.Count()}");
+                    InvokeReportProgress($"\rTHREAD#{groupedEntries.Key}: {groupedEntries.Count()}", -1);
                 }
+
+                InvokeReportProgress(string.Empty);
             }
 
             if (cfg.SplitByIdentities != null)
@@ -305,8 +312,10 @@ namespace LogFilterCore
                         currentSummary.FilesWritten++;
                     }
 
-                    InvokeReportProgress($"\rIDENTITY#{groupedEntries.Key}: {groupedEntries.Count()}");
+                    InvokeReportProgress($"\rIDENTITY#{groupedEntries.Key}: {groupedEntries.Count()}", -1);
                 }
+
+                InvokeReportProgress(string.Empty);
             }
 
             if (cfg.SplitByLogLevels != null)
@@ -330,8 +339,10 @@ namespace LogFilterCore
                         currentSummary.FilesWritten++;
                     }
 
-                    InvokeReportProgress($"\rLEVEL#{groupedEntries.Key}: {groupedEntries.Count()}");
+                    InvokeReportProgress($"\rLEVEL#{groupedEntries.Key}: {groupedEntries.Count()}", -1);
                 }
+
+                InvokeReportProgress(string.Empty);
             }
         }
 

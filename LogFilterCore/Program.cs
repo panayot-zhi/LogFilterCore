@@ -34,13 +34,6 @@ namespace LogFilterCore
                 Thread.Sleep(500);
             }
 
-            var expression = new Regex(".*",
-                RegexOptions.Singleline | RegexOptions.Compiled | RegexOptions.ExplicitCapture,
-                TimeSpan.FromSeconds(5));
-
-            var jsonExpression = JsonConvert.SerializeObject(expression);
-            var newExpression = JsonConvert.DeserializeObject<Regex>(jsonExpression);
-
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(RunOptions)
                 .WithNotParsed(HandleParseError);
@@ -50,13 +43,18 @@ namespace LogFilterCore
             Thread.Sleep(1000);
         }
 
-        private static void ReportProgressDelegate(string message, int? percent)
+        private static void ReportProgressDelegate(string message, int? number)
         {
-            if (percent.HasValue)
+            if (number.HasValue)
             {
-                Console.Write(percent.Value == 100
-                    ? $"\r{percent}% {message}{Environment.NewLine}"
-                    : $"\r{percent}% {message}");
+                if (number < 0)
+                {
+                    Console.Write(message);
+                }
+                else
+                {
+                    Console.Write($"\r{number}% {message}");
+                }
             }
             else
             {
