@@ -67,7 +67,6 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\VerboseMode.cs" />
-    <Compile Include="Utility\Extensions.cs" />
     <Compile Include="FileProcessor.cs" />
     <Compile Include="Utility\ObjectCloner.cs" />
     <Compile Include="Utility\ParserDateTimeConverter.cs" />
