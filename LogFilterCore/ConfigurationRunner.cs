@@ -350,7 +350,14 @@ namespace LogFilterCore
                     InvokeReportProgress("Both input file and input folder are set, disregarding the latter.");
                 }
 
-                return new[] { new FileInfo(cfg.InputFile) };
+                var inputFileInfo = new FileInfo(cfg.InputFile);
+
+                if (!cfg.OverwriteFiles && FileProcessor.HasBeenProcessed(inputFileInfo, cfg.InputFolder, cfg.OutputFolder))
+                {
+                    return Array.Empty<FileInfo>();
+                }
+
+                return new[] { inputFileInfo };
             }
 
             IEnumerable<FileInfo> inputFiles;
