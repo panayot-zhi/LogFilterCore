@@ -13,7 +13,7 @@ namespace LogFilterCore
     {
         private Summary RunSummary { get; set; }
 
-        private Configuration Current { get; set; }
+        private Configuration Current { get; }
 
         public ConfigurationRunner(string configurationFilePath)
         {

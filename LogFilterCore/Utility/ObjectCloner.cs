@@ -22,7 +22,7 @@ namespace LogFilterCore.Utility
         {
             if (!typeof(T).IsSerializable)
             {
-                throw new ArgumentException("The type must be serializable.", "source");
+                throw new ArgumentException("The type must be serializable.", nameof(source));
             }
 
             // Don't serialize a null object, simply return the default for that object

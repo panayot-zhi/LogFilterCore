@@ -164,7 +164,7 @@ namespace LogFilterCore.Parsers
                 // if users are specified with concrete values, filter entries with other users
                 if (cfg.SplitByIdentities != null && cfg.SplitByIdentities.Length > 0)
                 {
-                    // NOTE: If need be add SplitByUsernames which should point to filtering of WIndowsIdentity entries
+                    // NOTE: If need be add SplitByUsernames which should point to filtering of WindowsIdentity entries
                     if (!cfg.SplitByIdentities.Contains(currentEntry.Identity) /*|| !cfg.SplitByUsers.Contains(currentEntry.Username)*/)
                     {
                         continue;
@@ -298,7 +298,7 @@ namespace LogFilterCore.Parsers
 
             // Configuration.Filters
             // annul accumulated counters
-            // initialize entries list if neccessary
+            // initialize entries list if necessary
             var filters = Configuration.Filters;
             filters.ForEach(x =>
             {
