@@ -110,7 +110,12 @@ namespace LogFilterCore
                 }
             }
 
-            EndRunSummary();
+            if (inputFiles.Length > 1)
+            {
+                // do not write run summary if
+                // only one file has been processed
+                EndRunSummary();
+            }
         }
 
         protected virtual void Run(FileInfo logFileInput)
