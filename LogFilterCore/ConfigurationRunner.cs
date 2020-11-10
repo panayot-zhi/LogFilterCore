@@ -11,6 +11,10 @@ namespace LogFilterCore
 {
     public class ConfigurationRunner
     {
+
+        // TODO: Add an overload to the run method, that accepts only string[] (or IEnumerable),
+        // read the file beforehand and pass the same reference to this method (do not re-read the file)
+
         private Summary RunSummary { get; set; }
 
         private Configuration Current { get; }
