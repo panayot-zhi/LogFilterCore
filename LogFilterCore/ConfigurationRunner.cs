@@ -364,13 +364,16 @@ namespace LogFilterCore
 
             if (!string.IsNullOrEmpty(cfg.InputFile))
             {
+                var inputFileInfo = new FileInfo(cfg.InputFile);
                 if (!string.IsNullOrEmpty(cfg.InputFolder))
                 {
                     // TODO: at level WARN!
                     InvokeReportProgress("Both input file and input folder are set, disregarding the latter.");
                 }
-
-                var inputFileInfo = new FileInfo(cfg.InputFile);
+                else
+                {
+                    cfg.InputFolder = inputFileInfo.Directory.FullName;
+                }
 
                 if (!cfg.OverwriteFiles && FileProcessor.HasBeenProcessed(inputFileInfo, cfg.InputFolder, cfg.OutputFolder))
                 {
