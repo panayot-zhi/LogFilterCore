@@ -248,7 +248,7 @@ namespace LogFilterCore.Parsers
 
                 if (targetPropertyValue is DateTime dateTimeTargetPropertyValue)
                 {
-                    // format dateTimeValues to string dates with the parser dat
+                    // format dateTimeValues to string dates with the parser date
                     // TODO: Why use DateTime? in the LogEntry class at all then?
                     stringTargetPropertyValue = dateTimeTargetPropertyValue.ToString(DateTimeFormat);
                     break;
